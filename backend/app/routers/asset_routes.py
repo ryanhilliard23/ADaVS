@@ -4,7 +4,7 @@ router = APIRouter()
 
 @router.get("/assets")
 def list_assets():
-    # Dummy data for testing
+    # Call the service function (currently a placeholder/dummy)
     return [
         {
             "id": 1,
@@ -18,7 +18,7 @@ def list_assets():
 
 @router.get("/assets/{asset_id}")
 def get_asset(asset_id: int):
-    # Dummy data for testing
+    # Call the service function (currently a placeholder/dummy)
     return {
         "id": asset_id,
         "services": [
@@ -32,7 +32,7 @@ def get_asset(asset_id: int):
 
 @router.get("/vulnerabilities")
 def list_vulnerabilities(severity: str = None):
-    # Dummy data for testing
+    # Call service function (placeholder/dummy)
     vulns = [
         {"id": 101, "name": "CVE-2023-12345", "severity": "critical", "target": "192.168.1.2", "detected_at": "2025-09-15T02:48:50"},
         {"id": 102, "name": "CVE-2023-56789", "severity": "medium", "target": "192.168.1.3", "detected_at": "2025-09-15T02:48:50"},
@@ -43,7 +43,7 @@ def list_vulnerabilities(severity: str = None):
 
 @router.get("/vulnerabilities/{vuln_id}")
 def get_vulnerability(vuln_id: int):
-    # Dummy data for testing
+    # Call service function (placeholder/dummy)
     return {
         "id": vuln_id,
         "cve_id": f"CVE-2023-{vuln_id}",

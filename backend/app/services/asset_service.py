@@ -3,7 +3,6 @@ from app.models.asset_model import Asset, Vulnerability
 
 def get_assets(db: Session, scan_id: int = None):
     query = db.query(Asset)
-    # Add scan_id filter if Asset has scan_id field
     return query.all()
 
 def get_asset_by_id(db: Session, asset_id: int):
