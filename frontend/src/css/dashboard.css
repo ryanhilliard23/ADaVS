@@ -1,0 +1,140 @@
+/* General container for the dashboard page */
+.dashboard-container {
+  padding: 2rem;
+  color: #e0e0e0;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem; 
+}
+
+/* Start Scan */
+.scan-section h1 {
+  font-size: 1.5rem;
+  font-weight: 500;
+  margin-bottom: 1rem;
+}
+
+.scan-input-wrapper {
+  display: flex;
+  gap: 1rem;
+}
+
+.scan-input {
+  flex-grow: 1; 
+  background-color: #2d3748;
+  border: 1px solid #4a5568;
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  color: #e0e0e0;
+  font-size: 1rem;
+}
+
+.scan-input::placeholder {
+  color: #a0aec0;
+}
+
+.scan-button {
+  background-color: #6b46c1;
+  color: white;
+  font-weight: bold;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.scan-button:hover {
+  background-color: #553c9a;
+}
+
+/* Stats Cards */
+.stats-section {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); 
+  gap: 1.5rem;
+}
+
+.stat-card {
+  background-color: #1a202c; 
+  padding: 1.5rem;
+  border-radius: 12px;
+  border: 1px solid #2d3748;
+}
+
+.stat-card p {
+  margin: 0 0 0.5rem 0;
+  color: #a0aec0; 
+  font-size: 0.9rem;
+}
+
+.stat-card span {
+  font-size: 2.25rem;
+  font-weight: bold;
+  color: #ffffff;
+}
+
+.stat-card .critical-risk {
+  color: #e53e3e; 
+}
+
+
+/* Recent Scans Table */
+.recent-scans-section {
+    background-color: #1a202c;
+    padding: 1.5rem;
+    border-radius: 12px;
+    border: 1px solid #2d3748;
+}
+
+.recent-scans-section h2 {
+  font-size: 1.25rem;
+  font-weight: 500;
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+
+.scans-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.scans-table th, .scans-table td {
+  padding: 1rem 0;
+  border-bottom: 1px solid #2d3748;
+}
+
+.scans-table th {
+  color: #a0aec0;
+  font-weight: normal;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+}
+
+.scans-table tbody tr:last-child td {
+  border-bottom: none;  
+}
+
+/* Status Tags Styling */
+.status-tag {
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px; 
+  font-weight: 500;
+  font-size: 0.85rem;
+}
+
+.status-tag.completed {
+  background-color: rgba(72, 187, 120, 0.2);
+  color: #48bb78;
+}
+
+.status-tag.in-progress {
+  background-color: rgba(66, 153, 225, 0.2);
+  color: #4299e1;
+}
+
+.status-tag.failed {
+  background-color: rgba(229, 62, 62, 0.2);
+  color: #e53e3e;
+}
