@@ -5,7 +5,9 @@ Asset discovery and an open source vulnerability scanner to display enterprise v
 ## Disclaimer
 
 **Authorized Use Only**: ADaVS is designed for asset discovery and vulnerability scanning within environments you own or are explicitly authorized to test.
+
 **Educational & Research**: This project is open-source for learning, research, and authorized security testing only.
+
 **Responsible Disclosure**: Follow responsible disclosure practices i.e. do not exploit or share vulnerabilities without the owner’s consent.
 
 ## Project Structure
