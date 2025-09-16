@@ -1,0 +1,39 @@
+.assets-container h1 {
+  font-size: 1.5rem;
+  font-weight: 500;
+  margin-bottom: 1.5rem;
+  color: #e0e0e0;
+}
+
+.assets-table-wrapper {
+  background-color: #1a202c;
+  padding: 1.5rem;
+  border-radius: 12px;
+  border: 1px solid #2d3748;
+}
+
+.assets-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  color: #e0e0e0;
+}
+
+.assets-table th {
+  color: #a0aec0;
+  font-weight: normal;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #2d3748;
+}
+
+.assets-table td {
+  padding: 1rem 0;
+  border-bottom: 1px solid #2d3748;
+  font-weight: 500;
+}
+
+.assets-table tbody tr:last-child td {
+  border-bottom: none;
+}
