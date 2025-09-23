@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { Routes, Route } from 'react-router-dom';
 import Sidebar from './components/Sidebar';
 import Dashboard from './pages/Dashboard';
 import Assets from './pages/Assets';
@@ -10,9 +10,11 @@ function App() {
     <div className="app-layout">
       <Sidebar />
       <main className="main-content">
-        <Dashboard />
-        <Assets />
-        <Vulnerabilities />
+        <Routes>
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/assets" element={<Assets />} />
+          <Route path="/vulnerabilities" element={<Vulnerabilities />} />
+        </Routes>
       </main>
     </div>
   );

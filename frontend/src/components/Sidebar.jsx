@@ -1,4 +1,5 @@
 import React from 'react';
+import { NavLink } from 'react-router-dom'; 
 import '../css/global.css';
 
 const Sidebar = () => {
@@ -8,9 +9,15 @@ const Sidebar = () => {
         <h2>ADaVS</h2>
       </div>
       <ul className="sidebar-nav">
-        <li className="nav-item active">Dashboard</li>
-        <li className="nav-item">Assets</li>
-        <li className="nav-item">Vulnerabilities</li>
+        <NavLink to="/" className={({ isActive }) => isActive ? "nav-item active" : "nav-item"}>
+          Dashboard
+        </NavLink>
+        <NavLink to="/assets" className={({ isActive }) => isActive ? "nav-item active" : "nav-item"}>
+          Assets
+        </NavLink>
+        <NavLink to="/vulnerabilities" className={({ isActive }) => isActive ? "nav-item active" : "nav-item"}>
+          Vulnerabilities
+        </NavLink>
       </ul>
     </nav>
   );
