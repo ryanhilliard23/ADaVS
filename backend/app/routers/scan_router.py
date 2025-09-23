@@ -2,7 +2,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.database import get_db
-from app.crud.scan_crud import create_scan, get_scans, get_scan_by_id, get_assets_by_scan, get_vulnerabilities_by_scan
+from app.services.scan_service import create_scan, get_scans, get_scan_by_id, get_assets_by_scan, get_vulnerabilities_by_scan
 
 router = APIRouter()
 
