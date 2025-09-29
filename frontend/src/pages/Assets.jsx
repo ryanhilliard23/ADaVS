@@ -8,15 +8,15 @@ const Assets = () => {
 
   // Handler for GET /assets
   const handleGetAssets = async () => {
-    try {
-      const res = await fetch(`${API_BASE}/assets`);
-      const data = await res.json();
-      console.log("GET /assets response:", data);
-      alert("Check console for /assets response!");
-    } catch (err) {
-      console.error(err);
-      alert("Error fetching assets");
-    }
+  try {
+    const res = await fetch(`${API_BASE}/assets/`); // <-- add trailing slash
+    const data = await res.json();
+    console.log("GET /assets/ response:", data);
+    alert("Check console for /assets/ response!");
+  } catch (err) {
+    console.error(err);
+    alert("Error fetching assets");
+  }
   };
 
   // Handler for GET /assets/{asset_id}
