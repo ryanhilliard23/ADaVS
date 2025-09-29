@@ -1,13 +1,14 @@
 import React from "react";
+import { FaBullseye } from 'react-icons/fa';
 import "../css/dashboard.css"; 
 
 const Dashboard = () => {
   return (
     <div className="dashboard-container">
-      {/* Start Scan */}
       <div className="scan-section">
         <h1>Start a New Scan</h1>
-        <div className="scan-input-wrapper">
+        <div className="scan-input-container">
+          <FaBullseye className="scan-input-icon" />
           <input
             type="text"
             className="scan-input"
@@ -41,6 +42,7 @@ const Dashboard = () => {
       <div className="recent-scans-section">
         <h2>Recent Scans</h2>
         <table className="scans-table">
+          {/* ... table content ... */}
           <thead>
             <tr>
               <th>Target</th>

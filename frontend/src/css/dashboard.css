@@ -14,38 +14,62 @@
   margin-bottom: 1rem;
 }
 
-.scan-input-wrapper {
+.scan-input-container {
   display: flex;
-  gap: 1rem;
+  align-items: center;
+  background-color: #1f2937; 
+  border: 1px solid #374151;
+  border-radius: 12px;
+  padding: 0.5rem 0.75rem;
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.scan-input-container:focus-within {
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.4);
+}
+
+.scan-input-icon {
+  color: #6b7280;
+  font-size: 1.2rem;
+  margin-right: 0.75rem;
 }
 
 .scan-input {
-  flex-grow: 1; 
-  background-color: #2d3748;
-  border: 1px solid #4a5568;
-  border-radius: 8px;
-  padding: 0.75rem 1rem;
+  flex-grow: 1;
+  background-color: transparent;
+  border: none;
   color: #e0e0e0;
   font-size: 1rem;
+  outline: none; 
 }
 
 .scan-input::placeholder {
-  color: #a0aec0;
+  color: #6b7280;
+}
+
+.scan-input-container:focus-within {
+  border-color: #4299e1; 
+  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.4); 
 }
 
 .scan-button {
-  background-color: #6b46c1;
+  background: linear-gradient(to right, #3182ce, #4299e1);
   color: white;
-  font-weight: bold;
+  font-weight: 500;
   padding: 0.75rem 1.5rem;
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all 0.2s ease-in-out;
+  margin-left: 0.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .scan-button:hover {
-  background-color: #553c9a;
+  transform: translateY(-2px);
+  box-shadow: 0 7px 10px rgba(0, 0, 0, 0.15);
 }
 
 /* Stats Cards */
