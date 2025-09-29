@@ -7,6 +7,7 @@ const Vulnerabilities = () => {
   const [vulnerabilityId, setVulnerabilityId] = useState(1);
   const [serviceId, setServiceId] = useState(1);
 
+  // Handler for GET/vulnerabilities/
   const handleGetVulnerabilities = async () => {
     try {
       const res = await fetch(`${API_BASE}/vulnerabilities/`);
@@ -18,6 +19,7 @@ const Vulnerabilities = () => {
     }
   };
 
+  // Handler for GET/vulnerabilities/vuln_id/
   const handleGetVulnerabilityById = async () => {
     try {
       const res = await fetch(`${API_BASE}/vulnerabilities/${vulnerabilityId}`);
@@ -29,6 +31,7 @@ const Vulnerabilities = () => {
     }
   };
 
+  // Handler for GET/vulnerabilities/service_id/
   const handleGetVulnerabilitiesByServiceId = async () => {
     try {
       const res = await fetch(
@@ -91,25 +94,28 @@ const Vulnerabilities = () => {
           </tbody>
         </table>
       </div>
-      <button onClick={handleGetVulnerabilities}>Get Vulnerabilities</button>
-      <input
-        type="number"
-        value={vulnerabilityId}
-        onChange={(e) => setVulnerabilityId(e.target.value)}
-        min={1}
-      ></input>
-      <button onClick={handleGetVulnerabilityById}>
-        Get Vulnerability By Id
-      </button>
-      <input
-        type="number"
-        value={serviceId}
-        onChange={(e) => setServiceId(e.target.value)}
-        min={1}
-      ></input>
-      <button onClick={handleGetVulnerabilitiesByServiceId}>
-        Get Vulnerability By Service Id
-      </button>
+      {/* This div can be deleted or changed only used for temporary buttons for endpoints*/}
+      <div>
+        <button onClick={handleGetVulnerabilities}>Get Vulnerabilities</button>
+        <input
+          type="number"
+          value={vulnerabilityId}
+          onChange={(e) => setVulnerabilityId(e.target.value)}
+          min={1}
+        ></input>
+        <button onClick={handleGetVulnerabilityById}>
+          Get Vulnerability By Id
+        </button>
+        <input
+          type="number"
+          value={serviceId}
+          onChange={(e) => setServiceId(e.target.value)}
+          min={1}
+        ></input>
+        <button onClick={handleGetVulnerabilitiesByServiceId}>
+          Get Vulnerability By Service Id
+        </button>
+      </div>
     </div>
   );
 };
