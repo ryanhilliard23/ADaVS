@@ -1,0 +1,78 @@
+.scans-container {
+  padding: 24px;
+  color: #eef5ff;
+}
+
+.scans-table-wrapper {
+  margin-top: 12px;
+  overflow-x: auto;
+}
+
+.scans-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #101b28;
+  border: 1px solid #1f2e42;
+  border-radius: 12px;
+}
+
+.scans-table th,
+.scans-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #1f2e42;
+  text-align: left;
+}
+
+.scans-table th {
+  color: #9bb0c9;
+}
+.scans-table tr:last-child td {
+  border-bottom: none;
+}
+
+.status-completed {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  color: #9fe5c6;
+  border: 1px solid #1f8a5b;
+  background: rgba(31, 138, 91, 0.12);
+}
+.status-progress {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  color: #b7d6ff;
+  border: 1px solid #3c88f4;
+  background: rgba(60, 136, 244, 0.14);
+}
+.status-failed {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  color: #ffc7c7;
+  border: 1px solid #e24c4c;
+  background: rgba(226, 76, 76, 0.14);
+}
+
+/* Buttons / inputs like your Vulnerabilities page */
+.scans-container button {
+  padding: 6px 12px;
+  margin: 4px;
+  background: #3c88f4;
+  border: none;
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.scans-container button:hover {
+  filter: brightness(1.05);
+}
+
+.scans-container input {
+  padding: 6px 8px;
+  border: 1px solid #2a3a4f;
+  border-radius: 8px;
+  color: #eef5ff;
+  background: #0c1622;
+}

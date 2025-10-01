@@ -26,6 +26,10 @@ const Sidebar = () => {
             <MdSecurity className="nav-icon" />
             Vulnerabilities
           </NavLink>
+          <NavLink to="/scans" className={({ isActive }) => isActive ? "nav-item active" : "nav-item"}>
+            <MdSecurity className="nav-icon" />
+            Scans
+          </NavLink>
         </ul>
       </div>
     </nav>

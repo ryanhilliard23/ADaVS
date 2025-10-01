@@ -3,6 +3,7 @@ import Sidebar from './components/Sidebar';
 import Dashboard from './pages/Dashboard';
 import Assets from './pages/Assets';
 import Vulnerabilities from './pages/Vulnerabilities';
+import Scans from './pages/Scans'
 import './css/global.css'; 
 
 function App() {
@@ -14,6 +15,7 @@ function App() {
           <Route path="/" element={<Dashboard />} />
           <Route path="/assets" element={<Assets />} />
           <Route path="/vulnerabilities" element={<Vulnerabilities />} />
+          <Route path="/scans" element={<Scans />} />
         </Routes>
       </main>
     </div>
