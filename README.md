@@ -15,29 +15,43 @@ Asset discovery and an open source vulnerability scanner to display enterprise v
 Frontend: React and Vite
 Backend: Python and FastAPI
 
-## Frontend Setup (Make sure Node is installed)
+## Running with Docker
 
-cd frontend
-npm install
-npm run dev
+### 1. Prerequisites
 
-App URL: http://localhost:5173
+- Install [Docker](https://docs.docker.com/get-docker/)
 
-## Backend Setup
+### 2. Start the application
 
-cd backend (Make sure everything is done within the backend folder)
-python -m venv venv
+From the project root (where `docker-compose.yml` is located):
 
-- Activate the virtual environment:
-  Windows: venv\Scripts\activate
+    docker compose up --build
 
-Mac/Linux: source venv/bin/activate
+This will:
 
-- Install dependencies
-  pip install -r requirements.txt
+- Build production-ready Docker images for both frontend and backend
 
-- Run the server
-  uvicorn app.main:app --reload
+### 3. Access the app
 
-API URL: http://localhost:8000
-Docs: http://localhost:8000/docs
+- **Frontend (React + Vite served by Nginx)** → http://localhost:3000
+- **Backend (FastAPI)** → http://localhost:8000
+- **API Docs (Swagger UI)** → http://localhost:8000/docs
+
+### 4. Stopping the app
+
+To stop and remove containers:
+
+    docker compose down
+
+If you want to run in the background (detached mode):
+
+    docker compose up -d
+
+And then view logs with:
+
+    docker compose logs -f
+
+### 5. Development Notes
+
+- No need for `npm install` or Python `venv` locally
+- All services run in isolated containers, ensuring consistent environments across machines.
