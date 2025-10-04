@@ -1,0 +1,28 @@
+# Frontend
+frontend/node_modules
+frontend/dist
+frontend/dist-ssr
+frontend/*.local
+
+# Backend
+backend/venv/
+backend/*.db
+backend/app/__pycache__/
+backend/app/models/__pycache__/
+backend/app/routes/__pycache__/
+backend/app/services/__pycache__/
+
+# General
+*.pyc
+*.pyo
+*.pyd
+*.log
+.DS_Store
+
+# IDE
+.vscode
+.idea
+
+# Git
+.git
+.gitignore
