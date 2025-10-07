@@ -36,10 +36,7 @@ body {
   display: grid; 
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  
-  background: rgba(31, 41, 55, 0.5);
   backdrop-filter: blur(30px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   padding: 0.75rem 3rem;
   width: 100%;
   box-sizing: border-box;
