@@ -7,9 +7,10 @@ class Asset(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     scan_id = Column(Integer, ForeignKey("scans.id", ondelete="CASCADE"))
-    ip_address = Column(String, nullable=False)
-    hostname = Column(String)
-    os = Column(String)
+    ip_address = Column(String(45), nullable=False)  # enough for IPv4/IPv6
+    hostname = Column(String(255))
+    os = Column(String(100))
 
     scan = relationship("Scan", back_populates="assets")
     services = relationship("AssetService", back_populates="asset", cascade="all, delete-orphan")
+
