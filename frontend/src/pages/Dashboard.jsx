@@ -1,8 +1,58 @@
-import React from "react";
+import React, { useState } from "react";
 import { FaBullseye } from 'react-icons/fa';
 import "../css/dashboard.css"; 
 
+const API_BASE = "http://localhost:8000/api";
+
 const Dashboard = () => {
+  const [targets, setTarget] = useState("");
+  const [isScanning, setIsScanning] = useState(false);
+  const [scanMessage, setScanMessage] = useState("");
+
+  const handleStartScan = async () => {
+    if (!targets.trim()) {
+      alert("Please enter a target to scan");
+      return;
+    }
+
+    setIsScanning(true);
+    setScanMessage("Initiating scan...");
+
+    try {
+      const response = await fetch(`${API_BASE}/scans/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ targets: targets.trim() }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setScanMessage(`✓ Scan completed! Found ${data.assets_discovered || 0} assets`);
+        console.log("Scan result:", data);
+        
+        setTimeout(() => {
+          setTarget("");
+          setScanMessage("");
+        }, 5000);
+      } else {
+        setScanMessage(`✗ Scan failed: ${data.error || "Unknown error"}`);
+      }
+    } catch (error) {
+      console.error("Scan error:", error);
+      setScanMessage(`✗ Error: ${error.message}`);
+    } finally {
+      setIsScanning(false);
+    }
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter' && !isScanning) {
+      handleStartScan();
+    }
+  };
   return (
     <div className="dashboard-container">
       <div className="scan-section">
@@ -12,10 +62,32 @@ const Dashboard = () => {
           <input
             type="text"
             className="scan-input"
-            placeholder="Enter target (e.g., 192.168.1.0/24, example.com)"
+            placeholder="Enter target (e.g., 10.50.100.0/24, 10.50.100.5)"
+            value={targets}
+            onChange={(e) => setTarget(e.target.value)}
+            onKeyPress={handleKeyPress}
+            disabled={isScanning}
           />
-          <button className="scan-button">Start Scan</button>
+          <button 
+            className="scan-button" 
+            onClick={handleStartScan}
+            disabled={isScanning}
+          >
+            {isScanning ? "Scanning..." : "Start Scan"}
+          </button>
         </div>
+        {scanMessage && (
+          <div style={{ 
+            marginTop: '1rem', 
+            padding: '0.75rem', 
+            borderRadius: '8px',
+            backgroundColor: scanMessage.includes('✓') ? 'rgba(72, 187, 120, 0.2)' : 'rgba(229, 62, 62, 0.2)',
+            color: scanMessage.includes('✓') ? '#48bb78' : '#e53e3e',
+            border: scanMessage.includes('✓') ? '1px solid #48bb78' : '1px solid #e53e3e'
+          }}>
+            {scanMessage}
+          </div>
+        )}
       </div>
 
       {/* Stats Cards */}
@@ -42,7 +114,6 @@ const Dashboard = () => {
       <div className="recent-scans-section">
         <h2>Recent Scans</h2>
         <table className="scans-table">
-          {/* ... table content ... */}
           <thead>
             <tr>
               <th>Target</th>
