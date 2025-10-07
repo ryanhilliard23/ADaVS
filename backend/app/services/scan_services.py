@@ -159,6 +159,6 @@ def start_scan(db: Session, targets: str):
     except Exception as e:
         traceback.print_exc()
         scan.status = "failed"
-        scan.finished_at = datetime.utcnow()
+        scan.finished_at = datetime.now()
         db.commit()
         return {"scan_id": scan_id, "status": "failed", "error": str(e)}
