@@ -53,7 +53,7 @@ def start_scan(db: Session, targets: str):
     print("="*70)
     print(f"[SCAN] Target: {targets}")
 
-    scan = Scan(status="running", started_at=datetime.now())
+    scan = Scan(status="running", started_at=datetime.now(), targets=targets)
     db.add(scan)
     db.commit()
     db.refresh(scan)
