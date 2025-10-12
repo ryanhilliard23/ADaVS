@@ -1,4 +1,3 @@
-# backend/tests/models/test_models.py
 from datetime import datetime
 import pytest
 
@@ -80,7 +79,6 @@ def test_cascade_delete_asset_deletes_services_and_vulns(db_session):
     db_session.add_all([v1, v2])
     db_session.commit()
 
-    # ORM-level cascade on relationships should handle delete-orphan
     db_session.delete(asset)
     db_session.commit()
 
@@ -108,7 +106,6 @@ def test_cascade_delete_scan_deletes_assets_tree(db_session):
     db_session.add(vul)
     db_session.commit()
 
-    # Deleting scan should cascade via relationships to assets -> services -> vulnerabilities
     db_session.delete(scan)
     db_session.commit()
 

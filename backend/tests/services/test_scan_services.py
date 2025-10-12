@@ -1,4 +1,3 @@
-# backend/tests/services/test_scan_services.py
 import types
 from app.models.scan import Scan
 from app.services import scan_services
@@ -15,14 +14,12 @@ def test_list_scans_and_detail(db_session):
     assert d["status"] == "completed"
 
 def test_start_scan_success_creates_assets_and_services(db_session, monkeypatch):
-    # stub HTTP call to VPS
     class FakeResp:
         status_code = 200
         def json(self):
             return {"xml": "<nmap xml>...</nmap>"}
     monkeypatch.setattr(scan_services, "requests", types.SimpleNamespace(post=lambda *a, **k: FakeResp()))
 
-    # stub parser + validator to return deterministic hosts
     def fake_parse(xml):
         return [{
             "ip_address": "10.0.0.5",
@@ -36,7 +33,6 @@ def test_start_scan_success_creates_assets_and_services(db_session, monkeypatch)
     monkeypatch.setattr(scan_services, "parse_nmap_xml", fake_parse)
     monkeypatch.setattr(scan_services, "validate_parsed_data", lambda hosts: True)
 
-    # env vars not strictly needed since we stubbed requests, but keep them sane
     monkeypatch.setenv("VPS_SCANNER_URL", "http://fake-scanner")
     monkeypatch.setenv("SCANNER_TOKEN", "secret")
 
@@ -45,8 +41,6 @@ def test_start_scan_success_creates_assets_and_services(db_session, monkeypatch)
     assert out["hosts_discovered"] == 1
     assert out["assets_created"] == 1
     assert out["services_created"] == 2
-
-    # the DB should reflect the created objects
     detail = scan_services.scan_detail(db_session, out["scan_id"])
     assert len(detail["assets"]) == 1
     assert detail["assets"][0]["ip_address"] == "10.0.0.5"

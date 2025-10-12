@@ -97,12 +97,12 @@ def test_parse_nmap_xml_banner_none_when_no_product_version_extrainfo():
     assert len(hosts) == 1
     svc = hosts[0]["services"][0]
     assert svc["service_name"] == "http-proxy"
-    assert svc["banner"] is None  # nothing to join
+    assert svc["banner"] is None  
 
 
 def test_parse_nmap_xml_raises_on_invalid_xml():
     with pytest.raises(ValueError) as exc:
-        parse_nmap_xml("<nmaprun><host></nmaprun>")  # malformed
+        parse_nmap_xml("<nmaprun><host></nmaprun>") 
     assert "Invalid XML format" in str(exc.value)
 
 
@@ -119,10 +119,10 @@ def test_validate_parsed_data_false_for_empty_hosts():
 
 
 def test_validate_parsed_data_false_for_missing_ip_or_services():
-    bad1 = [{"services": []}]                      # no ip
-    bad2 = [{"ip_address": "", "services": []}]    # empty ip
-    bad3 = [{"ip_address": "1.2.3.4"}]             # no services key
-    bad4 = [{"ip_address": "1.2.3.4", "services": "notalist"}]  # wrong type
+    bad1 = [{"services": []}]                     
+    bad2 = [{"ip_address": "", "services": []}]   
+    bad3 = [{"ip_address": "1.2.3.4"}]            
+    bad4 = [{"ip_address": "1.2.3.4", "services": "notalist"}]  
     assert validate_parsed_data(bad1) is False
     assert validate_parsed_data(bad2) is False
     assert validate_parsed_data(bad3) is False
