@@ -12,3 +12,14 @@ backend/app/routes/__pycache__/
 backend/app/services/__pycache__/
 backend/app/utils/__pycache__/
 backend/.env
+
+# Tests & coverage
+.coverage
+htmlcov/
+coverage.xml
+pytest-report.xml
+__pycache__/
+*/__pycache__/
+*.pyc
+*.pyo
+*.pyd
