@@ -47,6 +47,7 @@ body {
   display: flex;
   align-items: center;
   gap: 0.75rem;
+  justify-self: start;
 }
 
 .nav-links-container {
@@ -56,6 +57,14 @@ body {
   border-radius: 9999px;
   padding: 0.25rem;
   backdrop-filter: blur(10px);
+}
+
+.nav-area {
+  grid-column: 2;
+  justify-self: center; 
+  display: flex;
+  align-items: center;
+  gap: 1rem; 
 }
 
 .header-logo {
@@ -105,4 +114,15 @@ body {
 .nav-icon {
   margin-right: 0.5rem;
   font-size: 1.2rem;
+}
+
+.logout-button {
+  background-color: rgba(229, 62, 62, 0.2);
+  color: #fca5a5;
+  border: 1px solid rgba(229, 62, 62, 0.4);
+}
+
+.logout-button:hover {
+  background-color: rgba(229, 62, 62, 0.4);
+  color: #fff;
 }
