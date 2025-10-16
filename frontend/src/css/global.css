@@ -116,16 +116,13 @@ body {
   font-size: 1.2rem;
 }
 
-.home-button {
-  padding: 0.75rem;
-  border-radius: 50%;
-  
-  background-color: rgba(17, 24, 39, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
+.logout-button {
+  background-color: rgba(229, 62, 62, 0.2);
+  color: #fca5a5;
+  border: 1px solid rgba(229, 62, 62, 0.4);
 }
 
-.home-button .nav-icon {
-  margin-right: 0;
-  font-size: 1.5rem; 
+.logout-button:hover {
+  background-color: rgba(229, 62, 62, 0.4);
+  color: #fff;
 }

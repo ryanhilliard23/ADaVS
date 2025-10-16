@@ -1,5 +1,6 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
-import AppLayout from './components/AppLayout';
+import ProtectedLayout from './components/ProtectedLayout';
+import RedirectIfLoggedIn from './components/RedirectIfLoggedIn';
 import LandingPage from './pages/LandingPage';
 import Dashboard from './pages/Dashboard';
 import Assets from './pages/Assets';
@@ -9,9 +10,12 @@ import './css/global.css';
 function App() {
   return (
     <Routes>
-      <Route path="/" element={<LandingPage />} />
+      {/* Redirects if you are already logged in */}
+      <Route element={<RedirectIfLoggedIn />}>
+        <Route path="/" element={<LandingPage />} />
+      </Route>
 
-      <Route element={<AppLayout />}>
+      <Route element={<ProtectedLayout />}>
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/assets" element={<Assets />} />
         <Route path="/vulnerabilities" element={<Vulnerabilities />} />

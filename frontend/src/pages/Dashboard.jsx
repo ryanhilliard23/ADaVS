@@ -1,28 +1,64 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FaBullseye } from 'react-icons/fa';
 import "../css/dashboard.css"; 
 
-const API_BASE = "http://localhost:8000/api";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const Dashboard = () => {
   const [targets, setTarget] = useState("");
   const [isScanning, setIsScanning] = useState(false);
   const [scanMessage, setScanMessage] = useState("");
+  const [userEmail, setUserEmail] = useState(""); 
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const token = localStorage.getItem('accessToken');
+      if (!token) {
+        return;
+      }
+
+      try {
+        const response = await fetch(`${API_BASE_URL}/users/me`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setUserEmail(data.email);
+        } else {
+          console.error("Failed to fetch user data. Token might be invalid");
+        }
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
+    };
+
+    fetchUserData();
+  }, []); // empty array ensures runs only on component mount
 
   const handleStartScan = async () => {
     if (!targets.trim()) {
       alert("Please enter a target to scan");
       return;
     }
+    
+    const token = localStorage.getItem('accessToken');
+    if (!token) {
+        alert("Authentication error. Please log in again.");
+        return;
+    }
 
     setIsScanning(true);
     setScanMessage("Initiating scan...");
 
     try {
-      const response = await fetch(`${API_BASE}/scans/`, {
+      const response = await fetch(`${API_BASE_URL}/scans/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
         },
         body: JSON.stringify({ targets: targets.trim() }),
       });
@@ -30,7 +66,7 @@ const Dashboard = () => {
       const data = await response.json();
 
       if (response.ok) {
-        setScanMessage(`✓ Scan completed! Found ${data.assets_discovered || 0} assets`);
+        setScanMessage('Scan completed! Found ${data.hosts_discovered || 0} host(s)');
         console.log("Scan result:", data);
         
         setTimeout(() => {
@@ -38,11 +74,15 @@ const Dashboard = () => {
           setScanMessage("");
         }, 5000);
       } else {
-        setScanMessage(`✗ Scan failed: ${data.error || "Unknown error"}`);
+        if (response.status === 401) {
+            setScanMessage('Authentication failed. Please log in again');
+        } else {
+            setScanMessage('Scan failed: ${data.detail || "Unknown error"}');
+        }
       }
     } catch (error) {
       console.error("Scan error:", error);
-      setScanMessage(`✗ Error: ${error.message}`);
+      setScanMessage(`Error: ${error.message}`);
     } finally {
       setIsScanning(false);
     }
@@ -55,6 +95,9 @@ const Dashboard = () => {
   };
   return (
     <div className="dashboard-container">
+      {/* message that displays when the user's email is loaded */}
+      {userEmail && <h2 className="welcome-header">Welcome, {userEmail}!</h2>}
+
       <div className="scan-section">
         <h1>Start a New Scan</h1>
         <div className="scan-input-container">
