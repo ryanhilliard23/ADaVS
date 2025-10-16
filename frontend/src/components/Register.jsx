@@ -1,20 +1,49 @@
 import React, { useState } from 'react';
-import '../css/auth.css'; // Reusing the same CSS
+import '../css/auth.css';
 
 const Register = ({ onSwitchMode }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  // API URL from the environment variable
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
+
     if (password !== confirmPassword) {
-      alert("Passwords don't match!");
+      setError("Passwords don't match!");
       return;
     }
 
-    console.log('Registering with:', { email, password });
-    alert('Registration functionality not yet implemented.');
+    setIsLoading(true);
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/users/register`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || 'Registration failed.');
+      }
+
+      alert('Registration successful! Please sign in.');
+      onSwitchMode('login');
+
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -22,6 +51,7 @@ const Register = ({ onSwitchMode }) => {
       <h2>Create an Account</h2>
       <p>Start your journey with us today.</p>
       <form onSubmit={handleSubmit} className="auth-form">
+        {error && <p style={{ color: '#e53e3e', textAlign: 'center' }}>{error}</p>}
         <div className="form-group">
           <label htmlFor="email">Email</label>
           <input
@@ -31,6 +61,7 @@ const Register = ({ onSwitchMode }) => {
             onChange={(e) => setEmail(e.target.value)}
             placeholder="name@company.com"
             required
+            disabled={isLoading}
           />
         </div>
         <div className="form-group">
@@ -42,6 +73,7 @@ const Register = ({ onSwitchMode }) => {
             onChange={(e) => setPassword(e.target.value)}
             placeholder="••••••••"
             required
+            disabled={isLoading}
           />
         </div>
         <div className="form-group">
@@ -53,10 +85,11 @@ const Register = ({ onSwitchMode }) => {
             onChange={(e) => setConfirmPassword(e.target.value)}
             placeholder="••••••••"
             required
+            disabled={isLoading}
           />
         </div>
-        <button type="submit" className="auth-button">
-          Create Account
+        <button type="submit" className="auth-button" disabled={isLoading}>
+          {isLoading ? 'Creating Account...' : 'Create Account'}
         </button>
       </form>
       <p className="switch-mode-text">

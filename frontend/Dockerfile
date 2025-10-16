@@ -1,5 +1,7 @@
-# Building with node.js/react
 FROM node:20 AS build
+
+ARG VITE_API_BASE_URL
+ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
 
 WORKDIR /app
 

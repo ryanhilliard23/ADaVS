@@ -24,14 +24,10 @@ const LandingPage = () => {
           <h1>ADaVS</h1>
           <p>Asset Discovery and Vulnerability Scanner</p>
           <div className="button-group">
-            <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="github-button">
+            <a href="https://github.com/ryanhilliard23/ADaVS" target="_blank" rel="noopener noreferrer" className="github-button">
               <FaGithub />
               Go to GitHub
             </a>
-            <button onClick={() => navigate('/dashboard')} className="github-button">
-              <MdSpaceDashboard />
-              Go to Dashboard
-            </button>
           </div>
         </div>
       </div>
