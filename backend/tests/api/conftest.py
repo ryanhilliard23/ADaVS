@@ -6,6 +6,10 @@ from sqlalchemy.orm import sessionmaker
 
 # use an in-memory sqlite db for routes, too
 os.environ["DATABASE_URL"] = "sqlite+pysqlite:///:memory:"
+os.environ.setdefault(
+    "SECRET_KEY",
+    "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+)
 
 from app.models.base import Base, get_db  # noqa: E402
 from app.main import app  # noqa: E402
