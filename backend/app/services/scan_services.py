@@ -3,10 +3,18 @@ import json
 import requests, traceback
 from datetime import datetime
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 from ..models.scan import Scan
 from ..models.asset import Asset
 from ..models.asset_service import AssetService
 from ..utils.nmap_parser import parse_nmap_xml, validate_parsed_data
+
+
+try:
+    from ..models.vulnerability import Vulnerability
+    HAS_VULN = True
+except Exception:
+    HAS_VULN = False
 
 VPS_SCANNER_URL = os.getenv("VPS_SCANNER_URL")
 SCANNER_TOKEN = os.getenv("SCANNER_TOKEN")
@@ -20,6 +28,16 @@ def list_scans(db: Session):
             "started_at": scan.started_at,
             "finished_at": scan.finished_at,
             "status": scan.status,
+            "targets": scan.targets,
+            "assets": [
+                {
+                    "id": asset.id,
+                    "ip_address": asset.ip_address,
+                    "hostname": asset.hostname,
+                    "os": asset.os,
+                }
+                for asset in scan.assets
+            ],
         }
         for scan in scans
     ]
@@ -162,3 +180,24 @@ def start_scan(db: Session, targets: str):
         scan.finished_at = datetime.now()
         db.commit()
         return {"scan_id": scan_id, "status": "failed", "error": str(e)}
+
+def get_scan_summary(db):
+    total_assets = db.query(func.count(Asset.id)).scalar() or 0
+    hosts_online = total_assets
+
+    if HAS_VULN:
+        vulns_found = db.query(func.count(Vulnerability.id)).scalar() or 0
+        critical_risks = db.query(Vulnerability).filter(
+            Vulnerability.severity.in_(["Critical", "High"])
+        ).count()
+    else:
+        vulns_found = 0
+        critical_risks = 0
+
+    return {
+        "total_assets": total_assets,
+        "hosts_online": hosts_online,
+        "vulns_found": vulns_found,
+        "critical_risks": critical_risks,
+    }
+

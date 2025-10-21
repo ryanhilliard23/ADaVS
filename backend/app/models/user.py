@@ -9,4 +9,4 @@ class User(Base):
     email = Column(String(255), unique=True, index=True, nullable=False)
     hashed_password = Column(String(255), nullable=False)
 
-    scans = relationship("Scan", back_populates="user", cascade="all, delete-orphan")
+    # scans = relationship("Scan", back_populates="user", cascade="all, delete-orphan")
