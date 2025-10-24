@@ -1,73 +1,179 @@
-.landing-container {
-  display: flex;
-  width: 100vw;
-  height: 100vh;
-  overflow: hidden;
-}
-
-.landing-info-panel {
-  width: 50%;
-  background: linear-gradient(135deg, #111827, #1a2c3a);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  padding: 2rem;
-  color: #e0e0e0;
-}
-
-.info-content {
-  max-width: 400px;
-}
-
-.info-content h1 {
-  font-size: 4rem;
-  font-weight: bold;
-  margin-bottom: 1rem;
-}
-
-.info-content p {
-  font-size: 1.25rem;
-  color: #a0aec0;
-  margin-bottom: 2rem;
-}
-
-.github-button {
-  background-color: #374151;
-  color: #ffffff;
-  border: 1px solid #4b5563;
-  padding: 0.75rem 2rem;
-  border-radius: 8px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.2s;
-  
-  display: flex;
-  align-items: center;
-  gap: 0.5rem; 
-}
-
-.github-button:hover {
-  background-color: #4b5563;
-}
-
-.landing-auth-panel {
-  width: 50%;
+.landing-container-fullscreen {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  text-align: center;
+  position: relative;
+  color: #e0e0e0;
   padding: 2rem;
-  background-color: #1f2937;
+  box-sizing: border-box;
 }
 
-.button-group {
+.landing-content-center {
   display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 600px;
+}
+
+.landing-logo-center {
+  height: 150px;
+  margin-bottom: 1.5rem;
+}
+
+.landing-content-center h1 {
+  font-size: 4rem;
+  font-weight: bold;
+  margin: 0 0 1rem 0;
+  color: #ffffff;
+}
+
+.landing-content-center p {
+  font-size: 1.25rem;
+  color: #a0aec0;
+  margin-bottom: 2.5rem;
+}
+
+.landing-button-group-center {
+  display: flex;
+  gap: 1.5rem;
   justify-content: center;
+}
+
+.landing-action-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background-color: #ffffff;
+  color: #111827;
+  border: none;
+  padding: 0.8rem 2.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1);
+}
+
+.landing-action-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 255, 255, 0.15);
+}
+
+.landing-action-button.secondary {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+   box-shadow: none;
+}
+.landing-action-button.secondary:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+     box-shadow: 0 6px 20px rgba(255, 255, 255, 0.1);
+}
+
+.landing-bottom-bar {
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
   gap: 1rem;
 }
 
-.landing-logo {
-  height: 175px; 
-  margin-bottom: .5rem; 
+.github-button-bottom {
+  background-color: transparent;
+  color: #a0aec0;
+  border: none;
+  padding: 0;
+  border-radius: 0;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none; 
+  backdrop-filter: none;
+}
+
+.github-button-bottom:hover {
+  background-color: transparent;
+  color: #ffffff;
+  text-decoration: underline;
+}
+
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: rgba(24, 24, 27, 0.8);
+  backdrop-filter: blur(12px);
+  border: 1px solid #27272a;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  
+  padding: 2.5rem;
+  border-radius: 12px;
+  position: relative;
+  width: 90%;
+  max-width: 450px;
+  box-sizing: border-box;
+}
+
+.modal-close-button {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  font-size: 1.8rem;
+  color: #9ca3af;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.modal-close-button:hover {
+  color: #e0e0e0;
+}
+
+.modal-content .auth-form-container {
+  max-width: none;
+  padding: 0;
+  margin: 0;
+}
+
+.modal-content .auth-form-container h2 {
+  font-size: 1.8rem;
+  margin-bottom: 0.8rem;
+}
+
+.modal-content .auth-form-container p {
+  margin-bottom: 2rem;
+}
+
+@media (max-width: 600px) {
+  .landing-content-center h1 {
+    font-size: 2.5rem;
+  }
+
+  .landing-content-center p {
+    font-size: 1rem;
+  }
 }

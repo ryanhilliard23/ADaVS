@@ -6,9 +6,9 @@
 }
 
 .assets-table-wrapper {
-  background: rgba(45, 55, 72, 0.5);
+  background: rgba(24, 24, 27, 0.7);
   backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid #27272a;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
   padding: 1.5rem;
   border-radius: 12px;
@@ -27,15 +27,20 @@
   font-size: 0.8rem;
   text-transform: uppercase;
   padding-bottom: 1rem;
-  border-bottom: 1px solid #2d3748;
+  border-bottom: 1px solid #27272a;
 }
 
 .assets-table td {
   padding: 1rem 0;
-  border-bottom: 1px solid #2d3748;
+  border-bottom: 1px solid #27272a;
   font-weight: 500;
 }
 
 .assets-table tbody tr:last-child td {
   border-bottom: none;
+}
+
+.table-scroll-container {
+  width: 100%;
+  overflow-x: auto;
 }
