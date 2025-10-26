@@ -15,7 +15,7 @@ if not DATABASE_URL:
 # Create engine for Neon PostgreSQL
 engine = create_engine(
     DATABASE_URL,
-    pool_pre_ping=True,   # auto-reconnect if Neon suspended
+    pool_pre_ping=True,   
     pool_recycle=1800,
     pool_timeout=60,
 )

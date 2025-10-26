@@ -164,7 +164,7 @@ def start_scan(db: Session, targets: str):
         print(f"✓ Services created: {services_created}")
         print(f"✓ Services updated: {services_updated}")
 
-        # After nmap is done Nuclei scanning will be done right after using the assets from the scan
+        # After nmap is done Nuclei scanning will start right after and uses the assets from the scan
         ips = [h["ip_address"] for h in hosts if "ip_address" in h]
 
         print("DEBUGGING 1")
@@ -176,7 +176,6 @@ def start_scan(db: Session, targets: str):
             print("[SCAN] Nuclei scan completed:", nuclei_result)
         except Exception as e:
             print("[SCAN] Nuclei scan failed:", e)
-        # -----------------------------------------------------------
 
         scan.status = "completed"
         scan.finished_at = datetime.now()
