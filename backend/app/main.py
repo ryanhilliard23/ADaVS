@@ -31,8 +31,3 @@ app.include_router(user_routes.router, prefix="/api")
 @app.get("/")
 def root():
     return {"message": "FastAPI backend is running!"}
-
-# Temporary test, will be removed later
-@app.get("/test")
-def test():
-    return {"message": "Communication successful."}
