@@ -1,24 +1,101 @@
-import React, { useState } from "react";
-import { FaBullseye } from 'react-icons/fa';
-import "../css/dashboard.css"; 
+import React, { useState, useEffect, useRef } from "react";
+import { FaBullseye } from "react-icons/fa";
+import "../css/dashboard.css";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+function relativeTimeFromISO(iso) {
+  try {
+    const d = new Date(iso);
+    const now = Date.now();
+    const diff = Math.floor((now - d.getTime()) / 1000);
+    if (isNaN(diff)) return iso;
+    if (diff < 60) return `${diff} seconds ago`;
+    if (diff < 3600) return `${Math.floor(diff / 60)} minutes ago`;
+    if (diff < 86400) return `${Math.floor(diff / 3600)} hours ago`;
+    return `${Math.floor(diff / 86400)} days ago`;
+  } catch {
+    return iso;
+  }
+}
 
 const Dashboard = () => {
   const [targets, setTarget] = useState("");
   const [isScanning, setIsScanning] = useState(false);
   const [scanMessage, setScanMessage] = useState("");
+  const [userEmail, setUserEmail] = useState("");
+  const [scans, setScans] = useState([]);
+  const [error, setError] = useState("");
+  const pollRef = useRef(null);
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const token = localStorage.getItem("accessToken");
+      if (!token) return;
+
+      try {
+        const response = await fetch(`${API_BASE_URL}/users/me`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setUserEmail(data.email);
+        } else {
+          console.error("Failed to fetch user data. Token might be invalid");
+        }
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
+    };
+
+    fetchUserData();
+  }, []);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function fetchScans() {
+      try {
+        const token = localStorage.getItem("accessToken");
+        const res = await fetch(`${API_BASE_URL}/scans/`, {
+          headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+          cache: "no-store",
+        });
+        if (!res.ok) throw new Error(`Status ${res.status}`);
+        const data = await res.json();
+        let normalized = Array.isArray(data)
+          ? data
+          : data?.scans || data?.results || data?.data || [];
+        if (!Array.isArray(normalized)) normalized = [];
+        if (isMounted) {
+          setScans(normalized);
+          setError("");
+        }
+      } catch (e) {
+        if (isMounted) setError("Error loading scans");
+      }
+    }
+
+    fetchScans();
+    pollRef.current = setInterval(fetchScans, 60000);
+
+    return () => {
+      isMounted = false;
+      if (pollRef.current) clearInterval(pollRef.current);
+    };
+  }, []);
 
   const handleStartScan = async () => {
     if (!targets.trim()) {
       alert("Please enter a target to scan");
       return;
     }
-    
-    const token = localStorage.getItem('accessToken');
+
+    const token = localStorage.getItem("accessToken");
     if (!token) {
-        alert("Authentication error. Please log in again.");
-        return;
+      alert("Authentication error. Please log in again.");
+      return;
     }
 
     setIsScanning(true);
@@ -29,7 +106,7 @@ const Dashboard = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ targets: targets.trim() }),
       });
@@ -37,18 +114,18 @@ const Dashboard = () => {
       const data = await response.json();
 
       if (response.ok) {
-        setScanMessage('Scan completed! Found ${data.hosts_discovered || 0} host(s)');
-        console.log("Scan result:", data);
-        
+        setScanMessage(
+          `Scan completed! Found ${data.hosts_discovered || 0} host(s)`
+        );
         setTimeout(() => {
           setTarget("");
           setScanMessage("");
         }, 5000);
       } else {
         if (response.status === 401) {
-            setScanMessage('Authentication failed. Please log in again');
+          setScanMessage("Authentication failed. Please log in again");
         } else {
-            setScanMessage('Scan failed: ${data.detail || "Unknown error"}');
+          setScanMessage(`Scan failed: ${data.detail || "Unknown error"}`);
         }
       }
     } catch (error) {
@@ -60,12 +137,15 @@ const Dashboard = () => {
   };
 
   const handleKeyPress = (e) => {
-    if (e.key === 'Enter' && !isScanning) {
+    if (e.key === "Enter" && !isScanning) {
       handleStartScan();
     }
   };
+
   return (
     <div className="dashboard-container">
+      {userEmail && <h2 className="welcome-header">Welcome, {userEmail}!</h2>}
+
       <div className="scan-section">
         <h1>Start a New Scan</h1>
         <div className="scan-input-container">
@@ -79,29 +159,17 @@ const Dashboard = () => {
             onKeyPress={handleKeyPress}
             disabled={isScanning}
           />
-          <button 
-            className="scan-button" 
+          <button
+            className="scan-button"
             onClick={handleStartScan}
             disabled={isScanning}
           >
             {isScanning ? "Scanning..." : "Start Scan"}
           </button>
         </div>
-        {scanMessage && (
-          <div style={{ 
-            marginTop: '1rem', 
-            padding: '0.75rem', 
-            borderRadius: '8px',
-            backgroundColor: scanMessage.includes('Scan completed') ? 'rgba(72, 187, 120, 0.2)' : 'rgba(229, 62, 62, 0.2)',
-            color: scanMessage.includes('Scan completed') ? '#48bb78' : '#e53e3e',
-            border: scanMessage.includes('Scan completed') ? '1px solid #48bb78' : '1px solid #e53e3e'
-          }}>
-            {scanMessage}
-          </div>
-        )}
+        {scanMessage && <div>{scanMessage}</div>}
       </div>
 
-      {/* Stats Cards */}
       <div className="stats-section">
         <div className="stat-card">
           <p>Total Assets</p>
@@ -121,47 +189,77 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Recent Scans Table */}
       <div className="recent-scans-section">
         <h2>Recent Scans</h2>
-        <div className="table-scroll-container">
-          <table className="scans-table">
-            <thead>
+        <table className="scans-table">
+          <thead>
+            <tr>
+              <th>Target</th>
+              <th>Status</th>
+              <th>Assets Found</th>
+              <th>Started</th>
+            </tr>
+          </thead>
+          <tbody>
+            {error ? (
               <tr>
-                <th>Target</th>
-                <th>Status</th>
-                <th>Assets Found</th>
-                <th>Started</th>
+                <td colSpan={4}>Error loading scans</td>
               </tr>
-            </thead>
-            <tbody>
+            ) : scans.length === 0 ? (
               <tr>
-                <td data-label="Target">10.0.0.0/24</td>
-                <td data-label="Status">
-                  <span className="status-tag completed">Completed</span>
-                </td>
-                <td data-label="Assets Found">42</td>
-                <td data-label="Started">2 hours ago</td>
+                <td colSpan={4}>No scans found</td>
               </tr>
-              <tr>
-                <td data-label="Target">scanme.nmap.org</td>
-                <td data-label="Status">
-                  <span className="status-tag in-progress">In Progress</span>
-                </td>
-                <td data-label="Assets Found">1</td>
-                <td data-label="Started">5 minutes ago</td>
-              </tr>
-              <tr>
-                <td data-label="Target">192.168.1.0/24</td>
-                <td data-label="Status">
-                  <span className="status-tag failed">Failed</span>
-                </td>
-                <td data-label="Assets Found">0</td>
-                <td data-label="Started">1 day ago</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+            ) : (
+              scans.map((s, idx) => {
+                // use 'targets' (plural) from your backend payload
+                const target =
+                  s.targets ||
+                  s.target ||
+                  s.host ||
+                  s.network ||
+                  s.name ||
+                  "unknown";
+                  
+                // \u2705 use status as-is; normalize for CSS class
+                const statusRaw = (s.status || s.state || "")
+                  .toString()
+                  .toLowerCase();
+                const status =
+                  statusRaw.includes("complete") || statusRaw.includes("done")
+                    ? "completed"
+                    : statusRaw.includes("progress") ||
+                      statusRaw.includes("running")
+                    ? "in-progress"
+                    : statusRaw || "failed";
+
+                //o until we update payload to include, add later
+                const findings = Number.isInteger(s.findings)
+                  ? s.findings
+                  : s.vuln_count ?? s.count ?? s.results?.length ?? 0;
+
+                // show started time instead of updated/created
+                const time = s.started_at
+                  ? relativeTimeFromISO(s.started_at)
+                  : s.finished_at
+                  ? relativeTimeFromISO(s.finished_at)
+                  : "unknown";
+
+                return (
+                  <tr key={s.id ?? idx}>
+                    <td>{target}</td>
+                    <td>
+                      <span className={`status-tag ${status}`}>
+                        {status.replace("-", " ")}
+                      </span>
+                    </td>
+                    <td>{findings}</td>
+                    <td>{time}</td>
+                  </tr>
+                );
+              })
+            )}
+          </tbody>
+        </table>
       </div>
     </div>
   );
