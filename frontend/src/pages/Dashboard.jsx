@@ -219,7 +219,7 @@ const Dashboard = () => {
                   s.network ||
                   s.name ||
                   "unknown";
-
+                  
                 // \u2705 use status as-is; normalize for CSS class
                 const statusRaw = (s.status || s.state || "")
                   .toString()

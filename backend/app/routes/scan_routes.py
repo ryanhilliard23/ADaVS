@@ -12,7 +12,6 @@ router = APIRouter(prefix="/scans", tags=["scans"])
 class ScanRequest(BaseModel):
     targets: str
 
-
 # Returns all scans in the database.
 @router.get("/", response_model=list[dict])
 def list_scans(db: Session = Depends(get_db)):
