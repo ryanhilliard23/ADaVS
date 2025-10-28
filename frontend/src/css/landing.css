@@ -8,9 +8,31 @@
   overflow: hidden;
   text-align: center;
   position: relative;
-  color: #e0e0e0;
+  color: var(--landing-text-secondary);
   padding: 2rem;
   box-sizing: border-box;
+}
+
+.theme-toggle-button {
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+  z-index: 10;
+  background-color: var(--landing-button-secondary-bg);
+  color: var(--landing-text-primary);
+  border: none;
+  padding: 0.6rem;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  transition: all 0.2s ease-in-out;
+}
+
+.theme-toggle-button:hover {
+  background-color: var(--landing-button-secondary-hover-bg);
 }
 
 .landing-content-center {
@@ -29,12 +51,12 @@
   font-size: 4rem;
   font-weight: bold;
   margin: 0 0 1rem 0;
-  color: #ffffff;
+  color: var(--landing-text-primary);
 }
 
 .landing-content-center p {
   font-size: 1.25rem;
-  color: #a0aec0;
+  color: var(--landing-text-secondary);
   margin-bottom: 2.5rem;
 }
 
@@ -49,8 +71,8 @@
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  background-color: #ffffff;
-  color: #111827;
+  background-color: var(--landing-button-bg);
+  color: var(--landing-button-text);
   border: none;
   padding: 0.8rem 2.5rem;
   border-radius: 8px;
@@ -58,23 +80,26 @@
   font-size: 1rem;
   cursor: pointer;
   transition: all 0.2s ease-in-out;
-  box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
 .landing-action-button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(255, 255, 255, 0.15);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  background-color: var(--landing-button-hover-bg);
+  color: var(--landing-button-hover-text);
 }
 
 .landing-action-button.secondary {
-  background-color: rgba(255, 255, 255, 0.1);
-  color: #ffffff;
-   box-shadow: none;
+  background-color: var(--landing-button-secondary-bg);
+  color: var(--landing-text-primary);
+  box-shadow: none;
 }
 .landing-action-button.secondary:hover {
-    background-color: rgba(255, 255, 255, 0.2);
+    background-color: var(--landing-button-secondary-hover-bg);
     transform: translateY(-2px);
-     box-shadow: 0 6px 20px rgba(255, 255, 255, 0.1);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
+    color: var(--landing-text-primary);
 }
 
 .landing-bottom-bar {
@@ -89,13 +114,15 @@
 
 .github-button-bottom {
   background-color: transparent;
-  color: #a0aec0;
+  color: var(--landing-github-text);
   border: none;
   padding: 0;
+  border-bottom: 1px solid transparent;
+  padding-bottom: 2px;
   border-radius: 0;
   font-weight: 500;
   cursor: pointer;
-  transition: color 0.2s;
+  transition: color 0.2s, border-color 0.2s;
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -105,8 +132,9 @@
 
 .github-button-bottom:hover {
   background-color: transparent;
-  color: #ffffff;
-  text-decoration: underline;
+  color: var(--landing-github-hover-text);
+  text-decoration: none;
+  border-bottom: 1px solid var(--landing-github-hover-text);
 }
 
 .modal-backdrop {
@@ -115,7 +143,7 @@
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-color: rgba(0, 0, 0, 0.6);
+  background-color: var(--modal-backdrop-bg);
   backdrop-filter: blur(8px);
   display: flex;
   justify-content: center;
@@ -124,9 +152,9 @@
 }
 
 .modal-content {
-  background: rgba(24, 24, 27, 0.8);
+  background: var(--modal-content-bg);
   backdrop-filter: blur(12px);
-  border: 1px solid #27272a;
+  border: 1px solid var(--modal-border);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
   
   padding: 2.5rem;
@@ -144,13 +172,13 @@
   background: none;
   border: none;
   font-size: 1.8rem;
-  color: #9ca3af;
+  color: var(--text-secondary);
   cursor: pointer;
   line-height: 1;
 }
 
 .modal-close-button:hover {
-  color: #e0e0e0;
+  color: var(--text-primary);
 }
 
 .modal-content .auth-form-container {

@@ -1,6 +1,6 @@
 .dashboard-container {
     padding: 2rem;
-    color: #e0e0e0;
+    color: var(--text-primary);
     display: flex;
     flex-direction: column;
     gap: 2rem;
@@ -10,6 +10,7 @@
     font-size: 1.5rem;
     font-weight: 500;
     margin-bottom: 1rem;
+    color: var(--text-primary);
 }
 
 .scan-input-container {
@@ -17,20 +18,20 @@
     align-items: center;
     padding: 0.75rem 1.25rem;
     transition: all 0.2s ease-in-out;
-    background: rgba(24, 24, 27, 0.7); 
+    background: var(--card-background);
     backdrop-filter: blur(12px);
-    border: 1px solid #27272a;
+    border: 1px solid var(--card-border);
     border-radius: 12px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
 }
 
 .scan-input-container:focus-within {
-    border-color: #4f46e5;
-    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.4);
+    border-color: #3182ce;
+    box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.4);
 }
 
 .scan-input-icon {
-    color: #9ca3af;
+    color: var(--text-secondary);
     font-size: 1.2rem;
     margin-right: 0.75rem;
 }
@@ -39,13 +40,13 @@
     flex-grow: 1;
     background-color: transparent;
     border: none;
-    color: #e0e0e0;
+    color: var(--text-primary);
     font-size: 1rem;
     outline: none;
 }
 
 .scan-input::placeholder {
-    color: #9ca3af;
+    color: var(--text-secondary);
 }
 
 .scan-button {
@@ -74,23 +75,23 @@
 
 .stat-card {
     padding: 1.5rem;
-    background: rgba(24, 24, 27, 0.7);
+    background: var(--card-background);
     backdrop-filter: blur(12px);
-    border: 1px solid #27272a;
+    border: 1px solid var(--card-border);
     border-radius: 12px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
 }
 
 .stat-card p {
     margin: 0 0 0.5rem 0;
-    color: #a0aec0;
+    color: var(--text-secondary);
     font-size: 0.9rem;
 }
 
 .stat-card span {
     font-size: 2.25rem;
     font-weight: bold;
-    color: #ffffff;
+    color: var(--text-primary);
 }
 
 .stat-card .critical-risk {
@@ -99,9 +100,9 @@
 
 .recent-scans-section {
     padding: 1.5rem;
-    background: rgba(24, 24, 27, 0.7);
+    background: var(--card-background);
     backdrop-filter: blur(12px);
-    border: 1px solid #27272a;
+    border: 1px solid var(--card-border);
     border-radius: 12px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
 }
@@ -111,22 +112,24 @@
     font-weight: 500;
     margin-top: 0;
     margin-bottom: 1rem;
+    color: var(--text-primary);
 }
 
 .scans-table {
     width: 100%;
     border-collapse: collapse;
     text-align: left;
+    color: var(--text-primary);
 }
 
 .scans-table th,
 .scans-table td {
     padding: 1rem;
-    border-bottom: 1px solid #27272a;
+    border-bottom: 1px solid var(--card-border);
 }
 
 .scans-table th {
-    color: #a0aec0;
+    color: var(--table-header-text);
     font-weight: normal;
     font-size: 0.8rem;
     text-transform: uppercase;

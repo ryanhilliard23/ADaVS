@@ -2,13 +2,13 @@
   font-size: 1.5rem;
   font-weight: 500;
   margin-bottom: 1.5rem;
-  color: #e0e0e0;
+  color: var(--text-primary);
 }
 
 .assets-table-wrapper {
-  background: rgba(24, 24, 27, 0.7);
+  background: var(--card-background);
   backdrop-filter: blur(12px);
-  border: 1px solid #27272a;
+  border: 1px solid var(--card-border);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
   padding: 1.5rem;
   border-radius: 12px;
@@ -18,21 +18,21 @@
   width: 100%;
   border-collapse: collapse;
   text-align: left;
-  color: #e0e0e0;
+  color: var(--text-primary);
 }
 
 .assets-table th {
-  color: #a0aec0;
+  color: var(--table-header-text);
   font-weight: normal;
   font-size: 0.8rem;
   text-transform: uppercase;
   padding-bottom: 1rem;
-  border-bottom: 1px solid #27272a;
+  border-bottom: 1px solid var(--card-border);
 }
 
 .assets-table td {
   padding: 1rem 0;
-  border-bottom: 1px solid #27272a;
+  border-bottom: 1px solid var(--card-border);
   font-weight: 500;
 }
 
@@ -43,4 +43,73 @@
 .table-scroll-container {
   width: 100%;
   overflow-x: auto;
+}
+
+@media (max-width: 700px) {
+  .table-scroll-container {
+    overflow-x: hidden;
+  }
+
+  .assets-table,
+  .vulnerabilities-table,
+  .scans-table {
+    border: 0;
+  }
+
+  .assets-table thead,
+  .vulnerabilities-table thead,
+  .scans-table thead {
+    display: none;
+  }
+
+  .assets-table tr,
+  .vulnerabilities-table tr,
+  .scans-table tr {
+    display: block;
+    margin-bottom: 1rem;
+    border-bottom: 2px solid var(--card-border);
+  }
+  
+  .assets-table tr:last-child,
+  .vulnerabilities-table tr:last-child,
+  .scans-table tr:last-child {
+    margin-bottom: 0;
+  }
+
+  .assets-table td,
+  .vulnerabilities-table td,
+  .scans-table td {
+    display: block;
+    text-align: right;
+    padding: 0.75rem 0.5rem;
+    position: relative;
+    border-bottom: 1px dotted var(--card-border);
+  }
+  
+  .assets-table td:last-child,
+  .vulnerabilities-table td:last-child,
+  .scans-table td:last-child {
+      border-bottom: none;
+  }
+
+  .assets-table td::before,
+  .vulnerabilities-table td::before,
+  .scans-table td::before {
+    content: attr(data-label);
+    position: absolute;
+    left: 0.5rem;
+    text-align: left;
+    font-weight: bold;
+    color: var(--table-header-text);
+  }
+  
+  .vulnerabilities-table td[data-label="Severity"] {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+  }
+  
+  .vulnerabilities-table td[data-label="Severity"]::before {
+     margin-right: auto;
+  }
 }

@@ -1,3 +1,5 @@
+@import './theme.css';
+
 :root {
   --sidebar-width-expanded: 18rem;
   --sidebar-width-collapsed: 0px; 
@@ -7,6 +9,6 @@
 body {
   margin: 0;
   font-family: 'Segoe UI', sans-serif;
-  color: #e0e0e0;
-  background-color: #09090b; 
+  color: var(--text-primary);
+  background-color: var(--main-background);
 }

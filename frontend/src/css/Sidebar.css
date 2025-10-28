@@ -1,25 +1,16 @@
-:root {
-  --text-color-primary: #e0e0e0;
-  --text-color-secondary: #a0aec0;
-  --bg-color-dark: #18181b;
-  --bg-color-light-hover: rgba(255, 255, 255, 0.05);
-  --border-color-subtle: #27272a;
-  --active-bg-color: #374151;
-}
-
 .sidebar-container {
   position: fixed; 
   top: 0;
   left: 0;
-  height: 100vh;
+  height: 100%;
   width: var(--sidebar-width-expanded); 
-  background-color: var(--bg-color-dark);
-  border-right: 1px solid var(--border-color-subtle); 
+  background-color: var(--sidebar-background);
+  border-right: 1px solid var(--border-subtle); 
   display: flex;
   flex-direction: column;
   padding: 1rem 0;
   box-sizing: border-box;
-  transition: transform var(--sidebar-transition-speed) ease;
+  transition: transform var(--sidebar-transition-speed) ease, background-color 0.3s ease, border-color 0.3s ease;
   transform: translateX(0%);
   z-index: 100;
   overflow-x: hidden; 
@@ -54,7 +45,7 @@
 .sidebar-title {
   font-size: 1.25rem;
   font-weight: 600;
-  color: var(--text-color-primary);
+  color: var(--text-primary);
   margin: 0;
   white-space: nowrap;
   flex-grow: 1;
@@ -63,7 +54,7 @@
 .header-toggle-button {
   background: none;
   border: none;
-  color: var(--text-color-secondary);
+  color: var(--text-secondary);
   font-size: 1.8rem;
   cursor: pointer;
   padding: 0.25rem;
@@ -72,7 +63,7 @@
   margin-left: auto; 
 }
 .header-toggle-button:hover {
-  color: var(--text-color-primary);
+  color: var(--text-primary);
 }
 
 .sidebar-nav {
@@ -96,7 +87,7 @@
   cursor: pointer;
   transition: background-color 0.2s ease, color 0.2s ease;
   text-decoration: none;
-  color: var(--text-color-secondary);
+  color: var(--text-secondary);
   background-color: transparent;
   white-space: nowrap;
   overflow: hidden;
@@ -109,12 +100,12 @@
   opacity: 0;
 }
 .nav-item:hover {
-  color: var(--text-color-primary);
-  background-color: var(--bg-color-light-hover);
+  color: var(--text-primary);
+  background-color: var(--bg-light-hover);
 }
 .nav-item.active {
-  background-color: var(--active-bg-color);
-  color: var(--text-color-primary);
+  background-color: var(--active-bg);
+  color: var(--text-primary);
 }
 .nav-icon {
   font-size: 1.3rem;
@@ -134,12 +125,12 @@
 .sidebar-footer {
   margin-top: auto; 
   padding: 0.5rem 1.5rem 0.5rem 1.5rem;
-  border-top: 1px solid var(--border-color-subtle); 
+  border-top: 1px solid var(--border-subtle); 
   display: flex;
   justify-content: space-between; 
   align-items: center;
   gap: 0.5rem;
-  transition: opacity 0.1s ease;
+  transition: opacity 0.1s ease, border-color 0.3s ease;
 }
 
 .sidebar-container.collapsed .sidebar-footer {
@@ -149,7 +140,7 @@
 .footer-icon-button {
   background: none;
   border: none;
-  color: var(--text-color-secondary);
+  color: var(--text-secondary);
   font-size: 1.2rem;
   width: 32px;
   height: 32px;
@@ -163,45 +154,63 @@
   padding: 0;
 }
 .footer-icon-button:hover {
-  background-color: var(--bg-color-light-hover);
-  color: var(--text-color-primary);
+  background-color: var(--bg-light-hover);
+  color: var(--text-primary);
 }
 .footer-icon-button .nav-icon {
     margin-right: 0;
     font-size: 1.2rem;
-}
-.logout-icon-button {
-  color: #fca5a5;
-}
-.logout-icon-button:hover {
-  background-color: rgba(229, 62, 62, 0.2);
-  color: #ffffff;
 }
 
 .sidebar-profile {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  padding: 0.5rem 1.5rem 1.5rem 1.5rem;
-  border-bottom: 1px solid var(--border-color-subtle);
+  padding: 0.75rem 1.5rem;
+  border-bottom: 1px solid var(--border-subtle);
   margin-bottom: 1rem;
-  transition: opacity 0.1s ease;
+  transition: opacity 0.1s ease, border-color 0.3s ease;
 }
 .sidebar-container.collapsed .sidebar-profile {
   opacity: 0;
 }
 .profile-icon {
-  font-size: 1.5rem;
-  color: var(--text-color-secondary);
+  font-size: 1.3rem;
+  color: var(--text-secondary);
   min-width: 24px;
+  margin-right: 1rem;
 }
 .profile-email {
-  color: var(--text-color-primary);
+  color: var(--text-primary);
   font-weight: 500;
   font-size: 0.9rem;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.profile-logout-button {
+  background: none;
+  border: none;
+  color: var(--profile-logout);
+  font-size: 1.2rem;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  padding: 0;
+  text-decoration: none;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.profile-logout-button:hover {
+  background-color: var(--profile-logout-hover-bg);
+  color: var(--profile-logout-hover-color);
 }
 
 @media (max-width: 768px) {
