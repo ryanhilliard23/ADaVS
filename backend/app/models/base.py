@@ -15,9 +15,9 @@ if not DATABASE_URL:
 # Create engine for Neon PostgreSQL
 engine = create_engine(
     DATABASE_URL,
-    poolclass=NullPool,
-    pool_pre_ping=True,   # auto-handle dropped connections
-    echo=False             
+    pool_pre_ping=True,   
+    pool_recycle=1800,
+    pool_timeout=60,
 )
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

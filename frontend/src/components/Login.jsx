@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { MdOutlineEmail, MdOutlineLock } from 'react-icons/md';
 import '../css/auth.css';
 
 const Login = ({ onSwitchMode }) => {
@@ -57,6 +58,7 @@ const Login = ({ onSwitchMode }) => {
       <form onSubmit={handleSubmit} className="auth-form">
         {error && <p style={{ color: '#e53e3e', textAlign: 'center' }}>{error}</p>}
         <div className="form-group">
+          <MdOutlineEmail className="auth-icon" />
           <label htmlFor="email">Email</label>
           <input
             type="email"
@@ -69,6 +71,7 @@ const Login = ({ onSwitchMode }) => {
           />
         </div>
         <div className="form-group">
+          <MdOutlineLock className="auth-icon" />
           <label htmlFor="password">Password</label>
           <input
             type="password"

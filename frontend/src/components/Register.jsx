@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { MdOutlineEmail, MdOutlineLock } from 'react-icons/md';
 import '../css/auth.css';
 
 const Register = ({ onSwitchMode }) => {
@@ -36,7 +37,6 @@ const Register = ({ onSwitchMode }) => {
         throw new Error(errorData.detail || 'Registration failed.');
       }
 
-      alert('Registration successful! Please sign in.');
       onSwitchMode('login');
 
     } catch (err) {
@@ -53,6 +53,7 @@ const Register = ({ onSwitchMode }) => {
       <form onSubmit={handleSubmit} className="auth-form">
         {error && <p style={{ color: '#e53e3e', textAlign: 'center' }}>{error}</p>}
         <div className="form-group">
+          <MdOutlineEmail className="auth-icon" />
           <label htmlFor="email">Email</label>
           <input
             type="email"
@@ -65,6 +66,7 @@ const Register = ({ onSwitchMode }) => {
           />
         </div>
         <div className="form-group">
+          <MdOutlineLock className="auth-icon" />
           <label htmlFor="password">Password</label>
           <input
             type="password"
@@ -77,6 +79,7 @@ const Register = ({ onSwitchMode }) => {
           />
         </div>
         <div className="form-group">
+          <MdOutlineLock className="auth-icon" />
           <label htmlFor="confirm-password">Confirm Password</label>
           <input
             type="password"
