@@ -51,53 +51,55 @@ const Assets = () => {
     <div className="assets-container">
       <h1>Discovered Assets</h1>
       <div className="assets-table-wrapper">
-        <table className="assets-table">
-          <thead>
-            <tr>
-              <th>IP Address</th>
-              <th>Hostname</th>
-              <th>OS</th>
-              <th>Port</th>
-              <th>Service Name</th>
-              <th>Banner</th>
-            </tr>
-          </thead>
-          <tbody>
-            {loading ? (
-              <tr>Loading...</tr>
-            ) : asset.length === 0 ? (
+        <div className="table-scroll-container">
+          <table className="assets-table">
+            <thead>
               <tr>
-                <td>No assets found</td>
+                <th>IP Address</th>
+                <th>Hostname</th>
+                <th>OS</th>
+                <th>Port</th>
+                <th>Service Name</th>
+                <th>Banner</th>
               </tr>
-            ) : (
-              asset.flatMap((a) =>
-                a.services.length > 0
-                  ? a.services.map((s) => (
-                      <tr key={`${a.id}-${s.id}`}>
-                        <td>{a.ip_address}</td>
-                        {/* if no hostname, use IP address */}
-                        <td>{a.hostname || a.ip_address}</td>
-                        <td>{a.os}</td>
-                        <td>{s.port}</td>
-                        <td>{s.service_name}</td>
-                        <td>{s.banner || "—"}</td>
-                      </tr>
-                    ))
-                  : [
-                      <tr key={a.id}>
-                        <td>{a.ip_address}</td>
-                        <td>{a.hostname}</td>
-                        <td>{a.os}</td>
-                        <td colSpan="3" style={{ color: "#888" }}>
-                          No services
-                        </td>
-                      </tr>,
-                      s,
-                    ]
-              )
-            )}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {loading ? (
+                <tr>Loading...</tr>
+              ) : asset.length === 0 ? (
+                <tr>
+                  <td>No assets found</td>
+                </tr>
+              ) : (
+                asset.flatMap((a) =>
+                  a.services.length > 0
+                    ? a.services.map((s) => (
+                        <tr key={`${a.id}-${s.id}`}>
+                          <td>{a.ip_address}</td>
+                          {/* if no hostname, use IP address */}
+                          <td>{a.hostname || a.ip_address}</td>
+                          <td>{a.os}</td>
+                          <td>{s.port}</td>
+                          <td>{s.service_name}</td>
+                          <td>{s.banner || "—"}</td>
+                        </tr>
+                      ))
+                    : [
+                        <tr key={a.id}>
+                          <td>{a.ip_address}</td>
+                          <td>{a.hostname}</td>
+                          <td>{a.os}</td>
+                          <td colSpan="3" style={{ color: "#888" }}>
+                            No services
+                          </td>
+                        </tr>,
+                        s,
+                      ]
+                )
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
