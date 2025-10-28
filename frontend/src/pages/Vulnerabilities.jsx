@@ -19,36 +19,36 @@ const Vulnerabilities = () => {
             </thead>
             <tbody>
               <tr>
-                <td>Log4j RCE (CVE-2021-44228)</td>
-                <td>
+                <td data-label="Name">Log4j RCE (CVE-2021-44228)</td>
+                <td data-label="Severity">
                   <span className="severity-critical">Critical</span>
                 </td>
-                <td>10.0.0.12:8080</td>
-                <td>2 hours ago</td>
+                <td data-label="Target">10.0.0.12:8080</td>
+                <td data-label="Detected">2 hours ago</td>
               </tr>
               <tr>
-                <td>Git Config Exposed</td>
-                <td>
+                <td data-label="Name">Git Config Exposed</td>
+                <td data-label="Severity">
                   <span className="severity-high">High</span>
                 </td>
-                <td>10.0.0.12:80</td>
-                <td>2 hours ago</td>
+                <td data-label="Target">10.0.0.12:80</td>
+                <td data-label="Detected">2 hours ago</td>
               </tr>
               <tr>
-                <td>TLS Version 1.0/1.1 Supported</td>
-                <td>
+                <td data-label="Name">TLS Version 1.0/1.1 Supported</td>
+                <td data-label="Severity">
                   <span className="severity-medium">Medium</span>
                 </td>
-                <td>45.33.32.156:443</td>
-                <td>5 minutes ago</td>
+                <td data-label="Target">45.33.32.156:443</td>
+                <td data-label="Detected">5 minutes ago</td>
               </tr>
               <tr>
-                <td>Directory Listing</td>
-                <td>
+                <td data-label="Name">Directory Listing</td>
+                <td data-label="Severity">
                   <span className="severity-low">Low</span>
                 </td>
-                <td>10.0.0.12:80</td>
-                <td>2 hours ago</td>
+                <td data-label="Target">10.0.0.12:80</td>
+                <td data-label="Detected">2 hours ago</td>
               </tr>
             </tbody>
           </table>

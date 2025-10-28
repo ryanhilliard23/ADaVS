@@ -2,10 +2,11 @@ import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { MdDashboard, MdStorage, MdSecurity, MdLogout, MdOutlineMenuOpen } from 'react-icons/md';
 import { FaGithub, FaUserCircle } from 'react-icons/fa';
+import { FiSun, FiMoon } from 'react-icons/fi';
 import '/src/css/Sidebar.css';
 import adavsLogo from '/src/assets/adavs.png';
 
-const Sidebar = ({ isCollapsed, toggleSidebar, onLogout, userEmail }) => {
+const Sidebar = ({ isCollapsed, toggleSidebar, onLogout, userEmail, theme, toggleTheme }) => {
   
   return (
     <nav className={`sidebar-container ${isCollapsed ? 'collapsed' : ''}`}>
@@ -22,6 +23,9 @@ const Sidebar = ({ isCollapsed, toggleSidebar, onLogout, userEmail }) => {
         <span className="profile-email" title={userEmail}>
           {userEmail || "..."}
         </span>
+        <button onClick={onLogout} className="profile-logout-button" aria-label="Sign Out">
+          <MdLogout />
+        </button>
       </div>
 
       {/* Navigation Links */}
@@ -51,8 +55,8 @@ const Sidebar = ({ isCollapsed, toggleSidebar, onLogout, userEmail }) => {
          <a href="https://github.com/ryanhilliard23/ADaVS" target="_blank" rel="noopener noreferrer" className="footer-icon-button github-icon-button">
              <FaGithub className="nav-icon" />
          </a>
-         <button onClick={onLogout} className="footer-icon-button logout-icon-button">
-           <MdLogout className="nav-icon" />
+         <button onClick={toggleTheme} className="footer-icon-button" aria-label="Toggle theme">
+           {theme === 'dark' ? <FiSun /> : <FiMoon />}
          </button>
       </div>
     </nav>

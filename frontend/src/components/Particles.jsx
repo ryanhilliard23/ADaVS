@@ -1,6 +1,5 @@
-import { useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Renderer, Camera, Geometry, Program, Mesh } from 'ogl';
-
 import '../css/Particles.css';
 
 const defaultColors = ['#ffffff', '#ffffff', '#ffffff'];
@@ -54,8 +53,7 @@ const vertex = /* glsl */ `
     if (uSizeRandomness == 0.0) {
       gl_PointSize = uBaseSize;
     } else {
-      // Adjust point size based on distance for perspective
-      gl_PointSize = (uBaseSize * (1.0 + uSizeRandomness * (random.x - 0.5))) / -mvPos.z; // Use -mvPos.z for perspective scaling
+      gl_PointSize = (uBaseSize * (1.0 + uSizeRandomness * (random.x - 0.5))) / -mvPos.z;
     }
 
     gl_Position = projectionMatrix * mvPos;
@@ -102,7 +100,17 @@ const Particles = ({
 }) => {
   const containerRef = useRef(null);
   const mouseRef = useRef({ x: 0, y: 0 });
+  
+  // Refs to store WebGL objects
+  const rendererRef = useRef(null);
+  const cameraRef = useRef(null);
+  const programRef = useRef(null);
+  const particlesRef = useRef(null);
+  const animationFrameIdRef = useRef(null);
+  const lastTimeRef = useRef(performance.now());
+  const elapsedRef = useRef(0);
 
+  // Effect to set up the scene only once
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
@@ -110,13 +118,15 @@ const Particles = ({
     const renderer = new Renderer({ depth: false, alpha: true });
     const gl = renderer.gl;
     if (container.firstChild) {
-        container.removeChild(container.firstChild);
+      container.removeChild(container.firstChild);
     }
     container.appendChild(gl.canvas);
     gl.clearColor(0, 0, 0, 0); 
+    rendererRef.current = renderer;
 
     const camera = new Camera(gl, { fov: 15 });
     camera.position.set(0, 0, cameraDistance);
+    cameraRef.current = camera;
 
     const resize = () => {
       renderer.setSize(window.innerWidth, window.innerHeight);
@@ -131,10 +141,6 @@ const Particles = ({
       mouseRef.current = { x, y };
     };
 
-    if (moveParticlesOnHover) {
-      window.addEventListener('mousemove', handleMouseMove);
-    }
-
     const count = particleCount;
     const positions = new Float32Array(count * 3);
     const randoms = new Float32Array(count * 4);
@@ -142,15 +148,11 @@ const Particles = ({
     const palette = particleColors && particleColors.length > 0 ? particleColors : defaultColors;
 
     for (let i = 0; i < count; i++) {
-        let x, y, z, len;
-        do {
-            x = Math.random() * 2 - 1;
-            y = Math.random() * 2 - 1;
-            z = Math.random() * 2 - 1;
-            len = x * x + y * y + z * z;
-        } while (len > 1 || len === 0);
-        const r = Math.cbrt(Math.random());
-        positions.set([x * r, y * r, z * r], i * 3);
+        const x = Math.random() * 2 - 1;
+        const y = Math.random() * 2 - 1;
+        const z = Math.random() * 2 - 1;
+
+        positions.set([x, y, z], i * 3);
         randoms.set([Math.random(), Math.random(), Math.random(), Math.random()], i * 4);
         const col = hexToRgb(palette[Math.floor(Math.random() * palette.length)]);
         colors.set(col, i * 3);
@@ -175,20 +177,20 @@ const Particles = ({
         transparent: true,
         depthTest: false
     });
+    programRef.current = program;
 
     const particles = new Mesh(gl, { mode: gl.POINTS, geometry, program });
+    particlesRef.current = particles;
 
-    let animationFrameId;
-    let lastTime = performance.now();
-    let elapsed = 0;
+    // Animation loop
+    const update = (t) => {
+        animationFrameIdRef.current = requestAnimationFrame(update);
+        
+        const delta = t - lastTimeRef.current;
+        lastTimeRef.current = t;
+        elapsedRef.current += delta * speed;
 
-    const update = t => {
-        animationFrameId = requestAnimationFrame(update);
-        const delta = t - lastTime;
-        lastTime = t;
-        elapsed += delta * speed;
-
-        program.uniforms.uTime.value = elapsed * 0.001;
+        program.uniforms.uTime.value = elapsedRef.current * 0.001;
 
         if (moveParticlesOnHover) {
             particles.position.x = -mouseRef.current.x * particleHoverFactor;
@@ -198,32 +200,84 @@ const Particles = ({
             particles.position.y = 0;
         }
 
-        if (!disableRotation) {
-            particles.rotation.x = Math.sin(elapsed * 0.0002) * 0.1;
-            particles.rotation.y = Math.cos(elapsed * 0.0005) * 0.15;
-            particles.rotation.z += 0.01 * speed;
-        }
+        // --- ROTATION CODE REMOVED ---
 
         renderer.render({ scene: particles, camera });
     };
 
-    animationFrameId = requestAnimationFrame(update);
+    animationFrameIdRef.current = requestAnimationFrame(update);
 
+    // Cleanup
     return () => {
         window.removeEventListener('resize', resize);
         if (moveParticlesOnHover) {
-            window.removeEventListener('mousemove', handleMouseMove);
+             window.removeEventListener('mousemove', handleMouseMove);
         }
-        cancelAnimationFrame(animationFrameId);
+        cancelAnimationFrame(animationFrameIdRef.current);
         if (container && gl.canvas && container.contains(gl.canvas)) {
             container.removeChild(gl.canvas);
         }
     };
-  }, [
-    particleCount, particleSpread, speed, particleColors, moveParticlesOnHover,
-    particleHoverFactor, alphaParticles, particleBaseSize, sizeRandomness,
-    cameraDistance, disableRotation 
-  ]);
+  }, []); // Empty dependency array ensures this runs only once on mount
+
+  // Effect to handle mouse move listener
+  useEffect(() => {
+    const handleMouseMove = e => {
+      const x = (e.clientX / window.innerWidth) * 2 - 1;
+      const y = -(e.clientY / window.innerHeight) * 2 + 1; 
+      mouseRef.current = { x, y };
+    };
+
+    if (moveParticlesOnHover) {
+      window.addEventListener('mousemove', handleMouseMove);
+    } else {
+      window.removeEventListener('mousemove', handleMouseMove);
+    }
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+    };
+  }, [moveParticlesOnHover]);
+
+  // Effect to update colors dynamically
+  useEffect(() => {
+    if (!particlesRef.current || !particleColors) return;
+
+    const count = particleCount;
+    const colors = new Float32Array(count * 3);
+    const palette = particleColors.length > 0 ? particleColors : defaultColors;
+
+    for (let i = 0; i < count; i++) {
+      const col = hexToRgb(palette[Math.floor(Math.random() * palette.length)]);
+      colors.set(col, i * 3);
+    }
+
+    // Update the geometry attribute directly
+    particlesRef.current.geometry.attributes.color.data.set(colors);
+    particlesRef.current.geometry.attributes.color.needsUpdate = true;
+    
+  }, [particleColors, particleCount]); // Re-run only when colors or count change
+
+  // Effects to update uniforms dynamically
+  useEffect(() => {
+    if (programRef.current) programRef.current.uniforms.uSpread.value = particleSpread;
+  }, [particleSpread]);
+
+  useEffect(() => {
+    if (programRef.current) programRef.current.uniforms.uBaseSize.value = particleBaseSize;
+  }, [particleBaseSize]);
+
+  useEffect(() => {
+    if (programRef.current) programRef.current.uniforms.uSizeRandomness.value = sizeRandomness;
+  }, [sizeRandomness]);
+  
+  useEffect(() => {
+    if (programRef.current) programRef.current.uniforms.uAlphaParticles.value = alphaParticles ? 1 : 0;
+  }, [alphaParticles]);
+  
+  useEffect(() => {
+    if (cameraRef.current) cameraRef.current.position.z = cameraDistance;
+  }, [cameraDistance]);
 
   return (
     <div

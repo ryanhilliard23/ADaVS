@@ -20,25 +20,25 @@ const Assets = () => {
             </thead>
             <tbody>
               <tr>
-                <td>10.0.0.5</td>
-                <td>dc-01.corp.local</td>
-                <td>Windows Server 2019</td>
-                <td>8</td>
-                <td>2 hours ago</td>
+                <td data-label="IP Address">10.0.0.5</td>
+                <td data-label="Hostname">dc-01.corp.local</td>
+                <td data-label="OS">Windows Server 2019</td>
+                <td data-label="Open Ports">8</td>
+                <td data-label="Last Seen">2 hours ago</td>
               </tr>
               <tr>
-                <td>10.0.0.12</td>
-                <td>ubuntu-web.corp.local</td>
-                <td>Linux 5.4</td>
-                <td>3</td>
-                <td>2 hours ago</td>
+                <td data-label="IP Address">10.0.0.12</td>
+                <td data-label="Hostname">ubuntu-web.corp.local</td>
+                <td data-label="OS">Linux 5.4</td>
+                <td data-label="Open Ports">3</td>
+                <td data-label="Last Seen">2 hours ago</td>
               </tr>
               <tr>
-                <td>45.33.32.156</td>
-                <td>scanme.nmap.org</td>
-                <td>Linux 2.6</td>
-                <td>5</td>
-                <td>5 minutes ago</td>
+                <td data-label="IP Address">45.33.32.156</td>
+                <td data-label="Hostname">scanme.nmap.org</td>
+                <td data-label="OS">Linux 2.6</td>
+                <td data-label="Open Ports">5</td>
+                <td data-label="Last Seen">5 minutes ago</td>
               </tr>
             </tbody>
           </table>
