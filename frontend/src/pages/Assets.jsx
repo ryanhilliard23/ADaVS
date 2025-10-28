@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import "../css/assets.css";
 
+const API_BASE = import.meta.env.VITE_API_BASE_URL;
+
 const Assets = () => {
   const [assetId, setAssetId] = useState(1);
   const [asset, setAsset] = useState([]);
@@ -26,7 +28,6 @@ const Assets = () => {
       return data;
     } catch (err) {
       console.error(err);
-      setError(err.message);
       alert("Error fetching assets");
     } finally {
       setLoading(false);
