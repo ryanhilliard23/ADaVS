@@ -1,7 +1,50 @@
-import React from 'react';
-import '../css/assets.css';
+import React, { useEffect, useState } from "react";
+import "../css/assets.css";
+
+const API_BASE = import.meta.env.VITE_API_BASE_URL;
 
 const Assets = () => {
+  const [assetId, setAssetId] = useState(1);
+  const [asset, setAsset] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  // Show assets on mount
+  useEffect(() => {
+    handleGetAssets();
+  }, []);
+
+  // Handler for GET /assets
+  const handleGetAssets = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch(`${API_BASE}/assets/`);
+      if (!res.ok) {
+        throw new Error(`HTTP error! Status: ${res.status}`);
+      }
+
+      const data = await res.json();
+      setAsset(data);
+      console.log(data);
+      return data;
+    } catch (err) {
+      console.error(err);
+      alert("Error fetching assets");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Handler for GET /assets/{asset_id}
+  const handleGetAssetById = async () => {
+    try {
+      const res = await fetch(`${API_BASE}/assets/${assetId}`);
+      const data = await res.json();
+      console.log(`GET /assets/${assetId} response:`, data);
+    } catch (err) {
+      console.error(err);
+      alert("Error fetching asset by ID");
+    }
+  };
 
   return (
     <div className="assets-container">
@@ -14,32 +57,45 @@ const Assets = () => {
                 <th>IP Address</th>
                 <th>Hostname</th>
                 <th>OS</th>
-                <th>Open Ports</th>
-                <th>Last Seen</th>
+                <th>Port</th>
+                <th>Service Name</th>
+                <th>Banner</th>
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td data-label="IP Address">10.0.0.5</td>
-                <td data-label="Hostname">dc-01.corp.local</td>
-                <td data-label="OS">Windows Server 2019</td>
-                <td data-label="Open Ports">8</td>
-                <td data-label="Last Seen">2 hours ago</td>
-              </tr>
-              <tr>
-                <td data-label="IP Address">10.0.0.12</td>
-                <td data-label="Hostname">ubuntu-web.corp.local</td>
-                <td data-label="OS">Linux 5.4</td>
-                <td data-label="Open Ports">3</td>
-                <td data-label="Last Seen">2 hours ago</td>
-              </tr>
-              <tr>
-                <td data-label="IP Address">45.33.32.156</td>
-                <td data-label="Hostname">scanme.nmap.org</td>
-                <td data-label="OS">Linux 2.6</td>
-                <td data-label="Open Ports">5</td>
-                <td data-label="Last Seen">5 minutes ago</td>
-              </tr>
+              {loading ? (
+                <tr>Loading...</tr>
+              ) : asset.length === 0 ? (
+                <tr>
+                  <td>No assets found</td>
+                </tr>
+              ) : (
+                asset.flatMap((a) =>
+                  a.services.length > 0
+                    ? a.services.map((s) => (
+                        <tr key={`${a.id}-${s.id}`}>
+                          <td>{a.ip_address}</td>
+                          {/* if no hostname, use IP address */}
+                          <td>{a.hostname || a.ip_address}</td>
+                          <td>{a.os}</td>
+                          <td>{s.port}</td>
+                          <td>{s.service_name}</td>
+                          <td>{s.banner || "—"}</td>
+                        </tr>
+                      ))
+                    : [
+                        <tr key={a.id}>
+                          <td>{a.ip_address}</td>
+                          <td>{a.hostname}</td>
+                          <td>{a.os}</td>
+                          <td colSpan="3" style={{ color: "#888" }}>
+                            No services
+                          </td>
+                        </tr>,
+                        s,
+                      ]
+                )
+              )}
             </tbody>
           </table>
         </div>
