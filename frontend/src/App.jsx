@@ -1,5 +1,4 @@
-// STEP 1: Import useEffect
-import React, { useEffect } from 'react'; 
+import React, { useEffect, useState } from 'react'; 
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import ProtectedLayout from './components/ProtectedLayout';
 import RedirectIfLoggedIn from './components/RedirectIfLoggedIn';
@@ -13,6 +12,20 @@ import './css/global.css';
 function App() {
   const location = useLocation(); 
   const isLandingPage = location.pathname === '/';
+
+  const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'dark');
+
+  const toggleTheme = () => {
+    setTheme((prevTheme) => {
+      const newTheme = prevTheme === 'dark' ? 'light' : 'dark';
+      localStorage.setItem('theme', newTheme);
+      return newTheme;
+    });
+  };
+
+  useEffect(() => {
+    document.body.className = theme;
+  }, [theme]);
 
   useEffect(() => {
     const baseTitle = 'ADaVS';
@@ -39,25 +52,28 @@ function App() {
 
   }, [location]);
 
+  const particleColors = theme === 'dark' ? ['#ffffff', '#ffffff'] : ['#000000', '#000000'];
+
   return (
     <>
       <Particles
-        particleColors={['#ffffff', '#ffffff']}
-        particleCount={200} 
+        particleColors={particleColors}
+        particleCount={300} 
         particleSpread={10}
-        speed={0.05} 
-        particleBaseSize={50}
+        speed={0.5} 
+        particleBaseSize={3}
         moveParticlesOnHover={isLandingPage}  
         alphaParticles={true}
-        disableRotation={false}
+        disableRotation={true}
+        sizeRandomness={0}
       />
 
       <Routes>
         <Route element={<RedirectIfLoggedIn />}>
-          <Route path="/" element={<LandingPage />} />
+          <Route path="/" element={<LandingPage theme={theme} toggleTheme={toggleTheme} />} />
         </Route>
 
-        <Route element={<ProtectedLayout />}>
+        <Route element={<ProtectedLayout theme={theme} toggleTheme={toggleTheme} />}>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/assets" element={<Assets />} />
           <Route path="/vulnerabilities" element={<Vulnerabilities />} />

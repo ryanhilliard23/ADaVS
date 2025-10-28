@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { FaGithub } from 'react-icons/fa';
 import { MdLogin } from 'react-icons/md';
+import { FiSun, FiMoon } from 'react-icons/fi';
 import Login from '../components/Login';
 import Register from '../components/Register';
 import adavsLogo from '../assets/adavs.png';
 import '../css/landing.css'; 
 
-const LandingPage = () => {
+const LandingPage = ({ theme, toggleTheme }) => {
   const [modalMode, setModalMode] = useState(null);
 
   const openModal = (mode) => {
@@ -23,6 +24,10 @@ const LandingPage = () => {
 
   return (
     <div className="landing-container-fullscreen">  
+
+      <button className="theme-toggle-button" onClick={toggleTheme} aria-label="Toggle theme">
+        {theme === 'dark' ? <FiSun /> : <FiMoon />}
+      </button>
 
       <div className="landing-content-center">
         <img src={adavsLogo} alt="ADaVS Logo" className="landing-logo-center" />

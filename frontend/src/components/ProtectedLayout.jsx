@@ -7,7 +7,7 @@ import { FaUserCircle } from 'react-icons/fa';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-const ProtectedLayout = () => {
+const ProtectedLayout = ({ theme, toggleTheme }) => {
   const token = localStorage.getItem('accessToken');
   
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false); 
@@ -71,13 +71,19 @@ const ProtectedLayout = () => {
 
   const handleLogout = () => {
     localStorage.removeItem('accessToken');
-    window.location.href = '/'; // Full page reload to clear all state
+    window.location.href = '/';
   };
 
   return (
     <div className="protected-layout-container">
-      {/* Pass all state and functions down to Sidebar */}
-      <Sidebar isCollapsed={isSidebarCollapsed} toggleSidebar={toggleSidebar} onLogout={handleLogout} userEmail={userEmail} />
+      <Sidebar 
+        isCollapsed={isSidebarCollapsed} 
+        toggleSidebar={toggleSidebar} 
+        onLogout={handleLogout} 
+        userEmail={userEmail}
+        theme={theme}
+        toggleTheme={toggleTheme} 
+      />
       <div className="top-bar-controls">
         <div className="top-left-controls">
                     

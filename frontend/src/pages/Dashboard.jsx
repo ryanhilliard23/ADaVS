@@ -136,28 +136,28 @@ const Dashboard = () => {
             </thead>
             <tbody>
               <tr>
-                <td>10.0.0.0/24</td>
-                <td>
+                <td data-label="Target">10.0.0.0/24</td>
+                <td data-label="Status">
                   <span className="status-tag completed">Completed</span>
                 </td>
-                <td>42</td>
-                <td>2 hours ago</td>
+                <td data-label="Assets Found">42</td>
+                <td data-label="Started">2 hours ago</td>
               </tr>
               <tr>
-                <td>scanme.nmap.org</td>
-                <td>
+                <td data-label="Target">scanme.nmap.org</td>
+                <td data-label="Status">
                   <span className="status-tag in-progress">In Progress</span>
                 </td>
-                <td>1</td>
-                <td>5 minutes ago</td>
+                <td data-label="Assets Found">1</td>
+                <td data-label="Started">5 minutes ago</td>
               </tr>
               <tr>
-                <td>192.168.1.0/24</td>
-                <td>
+                <td data-label="Target">192.168.1.0/24</td>
+                <td data-label="Status">
                   <span className="status-tag failed">Failed</span>
                 </td>
-                <td>0</td>
-                <td>1 day ago</td>
+                <td data-label="Assets Found">0</td>
+                <td data-label="Started">1 day ago</td>
               </tr>
             </tbody>
           </table>
