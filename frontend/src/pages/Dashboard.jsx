@@ -144,7 +144,6 @@ const Dashboard = () => {
 
   return (
     <div className="dashboard-container">
-      {userEmail && <h2 className="welcome-header">Welcome, {userEmail}!</h2>}
 
       <div className="scan-section">
         <h1>Start a New Scan</h1>
