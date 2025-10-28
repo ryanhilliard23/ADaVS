@@ -1,0 +1,221 @@
+.sidebar-container {
+  position: fixed; 
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: var(--sidebar-width-expanded); 
+  background-color: var(--sidebar-background);
+  border-right: 1px solid var(--border-subtle); 
+  display: flex;
+  flex-direction: column;
+  padding: 1rem 0;
+  box-sizing: border-box;
+  transition: transform var(--sidebar-transition-speed) ease, background-color 0.3s ease, border-color 0.3s ease;
+  transform: translateX(0%);
+  z-index: 100;
+  overflow-x: hidden; 
+  font-family: 'Inter', sans-serif;
+}
+
+.sidebar-container.collapsed {
+  transform: translateX(-100%);
+  border-right-color: transparent;
+  pointer-events: none;
+}
+
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; 
+  padding: 0 1.5rem 1.5rem 1.5rem;
+  min-height: 40px;
+  box-sizing: border-box;
+  transition: opacity 0.1s ease;
+}
+
+.sidebar-container.collapsed .sidebar-header {
+  opacity: 0;
+}
+
+.header-logo {
+  height: 32px;
+  margin-right: 0.75rem;
+}
+
+.sidebar-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+  white-space: nowrap;
+  flex-grow: 1;
+}
+
+.header-toggle-button {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 1.8rem;
+  cursor: pointer;
+  padding: 0.25rem;
+  line-height: 0;
+  transition: color 0.2s ease;
+  margin-left: auto; 
+}
+.header-toggle-button:hover {
+  color: var(--text-primary);
+}
+
+.sidebar-nav {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar-nav li {
+  margin-bottom: 0.125rem;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1.5rem; 
+  border-radius: 4px;
+  margin: 0 0.75rem; 
+  font-weight: 500;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  text-decoration: none;
+  color: var(--text-secondary);
+  background-color: transparent;
+  white-space: nowrap;
+  overflow: hidden;
+  border: none;
+  width: auto;
+  text-align: left;
+}
+
+.sidebar-container.collapsed .nav-item {
+  opacity: 0;
+}
+.nav-item:hover {
+  color: var(--text-primary);
+  background-color: var(--bg-light-hover);
+}
+.nav-item.active {
+  background-color: var(--active-bg);
+  color: var(--text-primary);
+}
+.nav-icon {
+  font-size: 1.3rem;
+  min-width: 24px;
+  margin-right: 1rem; 
+}
+.nav-text {
+  opacity: 1;
+  transition: opacity 0.1s ease;
+}
+.sidebar-container.collapsed .nav-text {
+  opacity: 0;
+  width: 0;
+  pointer-events: none;
+}
+
+.sidebar-footer {
+  margin-top: auto; 
+  padding: 0.5rem 1.5rem 0.5rem 1.5rem;
+  border-top: 1px solid var(--border-subtle); 
+  display: flex;
+  justify-content: space-between; 
+  align-items: center;
+  gap: 0.5rem;
+  transition: opacity 0.1s ease, border-color 0.3s ease;
+}
+
+.sidebar-container.collapsed .sidebar-footer {
+  opacity: 0;
+}
+
+.footer-icon-button {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 1.2rem;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  text-decoration: none;
+  padding: 0;
+}
+.footer-icon-button:hover {
+  background-color: var(--bg-light-hover);
+  color: var(--text-primary);
+}
+.footer-icon-button .nav-icon {
+    margin-right: 0;
+    font-size: 1.2rem;
+}
+
+.sidebar-profile {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1.5rem;
+  border-bottom: 1px solid var(--border-subtle);
+  margin-bottom: 1rem;
+  transition: opacity 0.1s ease, border-color 0.3s ease;
+}
+.sidebar-container.collapsed .sidebar-profile {
+  opacity: 0;
+}
+.profile-icon {
+  font-size: 1.3rem;
+  color: var(--text-secondary);
+  min-width: 24px;
+  margin-right: 1rem;
+}
+.profile-email {
+  color: var(--text-primary);
+  font-weight: 500;
+  font-size: 0.9rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.profile-logout-button {
+  background: none;
+  border: none;
+  color: var(--profile-logout);
+  font-size: 1.2rem;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  padding: 0;
+  text-decoration: none;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.profile-logout-button:hover {
+  background-color: var(--profile-logout-hover-bg);
+  color: var(--profile-logout-hover-color);
+}
+
+@media (max-width: 768px) {
+  .sidebar-container {
+    position: fixed;
+    z-index: 1000;
+  }
+}

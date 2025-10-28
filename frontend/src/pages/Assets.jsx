@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "../css/assets.css";
 
-const API_BASE = "http://localhost:8000/api";
-
 const Assets = () => {
   const [assetId, setAssetId] = useState(1);
   const [asset, setAsset] = useState([]);

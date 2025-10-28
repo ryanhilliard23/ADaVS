@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { FaBullseye } from 'react-icons/fa';
 import "../css/dashboard.css"; 
 
@@ -8,35 +8,6 @@ const Dashboard = () => {
   const [targets, setTarget] = useState("");
   const [isScanning, setIsScanning] = useState(false);
   const [scanMessage, setScanMessage] = useState("");
-  const [userEmail, setUserEmail] = useState(""); 
-
-  useEffect(() => {
-    const fetchUserData = async () => {
-      const token = localStorage.getItem('accessToken');
-      if (!token) {
-        return;
-      }
-
-      try {
-        const response = await fetch(`${API_BASE_URL}/users/me`, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-          },
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          setUserEmail(data.email);
-        } else {
-          console.error("Failed to fetch user data. Token might be invalid");
-        }
-      } catch (error) {
-        console.error("Error fetching user data:", error);
-      }
-    };
-
-    fetchUserData();
-  }, []); // empty array ensures runs only on component mount
 
   const handleStartScan = async () => {
     if (!targets.trim()) {
@@ -95,9 +66,6 @@ const Dashboard = () => {
   };
   return (
     <div className="dashboard-container">
-      {/* message that displays when the user's email is loaded */}
-      {userEmail && <h2 className="welcome-header">Welcome, {userEmail}!</h2>}
-
       <div className="scan-section">
         <h1>Start a New Scan</h1>
         <div className="scan-input-container">
@@ -124,9 +92,9 @@ const Dashboard = () => {
             marginTop: '1rem', 
             padding: '0.75rem', 
             borderRadius: '8px',
-            backgroundColor: scanMessage.includes('✓') ? 'rgba(72, 187, 120, 0.2)' : 'rgba(229, 62, 62, 0.2)',
-            color: scanMessage.includes('✓') ? '#48bb78' : '#e53e3e',
-            border: scanMessage.includes('✓') ? '1px solid #48bb78' : '1px solid #e53e3e'
+            backgroundColor: scanMessage.includes('Scan completed') ? 'rgba(72, 187, 120, 0.2)' : 'rgba(229, 62, 62, 0.2)',
+            color: scanMessage.includes('Scan completed') ? '#48bb78' : '#e53e3e',
+            border: scanMessage.includes('Scan completed') ? '1px solid #48bb78' : '1px solid #e53e3e'
           }}>
             {scanMessage}
           </div>
@@ -156,42 +124,44 @@ const Dashboard = () => {
       {/* Recent Scans Table */}
       <div className="recent-scans-section">
         <h2>Recent Scans</h2>
-        <table className="scans-table">
-          <thead>
-            <tr>
-              <th>Target</th>
-              <th>Status</th>
-              <th>Assets Found</th>
-              <th>Started</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>10.0.0.0/24</td>
-              <td>
-                <span className="status-tag completed">Completed</span>
-              </td>
-              <td>42</td>
-              <td>2 hours ago</td>
-            </tr>
-            <tr>
-              <td>scanme.nmap.org</td>
-              <td>
-                <span className="status-tag in-progress">In Progress</span>
-              </td>
-              <td>1</td>
-              <td>5 minutes ago</td>
-            </tr>
-            <tr>
-              <td>192.168.1.0/24</td>
-              <td>
-                <span className="status-tag failed">Failed</span>
-              </td>
-              <td>0</td>
-              <td>1 day ago</td>
-            </tr>
-          </tbody>
-        </table>
+        <div className="table-scroll-container">
+          <table className="scans-table">
+            <thead>
+              <tr>
+                <th>Target</th>
+                <th>Status</th>
+                <th>Assets Found</th>
+                <th>Started</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td data-label="Target">10.0.0.0/24</td>
+                <td data-label="Status">
+                  <span className="status-tag completed">Completed</span>
+                </td>
+                <td data-label="Assets Found">42</td>
+                <td data-label="Started">2 hours ago</td>
+              </tr>
+              <tr>
+                <td data-label="Target">scanme.nmap.org</td>
+                <td data-label="Status">
+                  <span className="status-tag in-progress">In Progress</span>
+                </td>
+                <td data-label="Assets Found">1</td>
+                <td data-label="Started">5 minutes ago</td>
+              </tr>
+              <tr>
+                <td data-label="Target">192.168.1.0/24</td>
+                <td data-label="Status">
+                  <span className="status-tag failed">Failed</span>
+                </td>
+                <td data-label="Assets Found">0</td>
+                <td data-label="Started">1 day ago</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
