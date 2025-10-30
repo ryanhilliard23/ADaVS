@@ -64,31 +64,32 @@ const Assets = () => {
             </thead>
             <tbody>
               {loading ? (
-                <tr>Loading...</tr>
+                <tr>
+                  <td colSpan="6" style={{ textAlign: "center" }}>Loading...</td>
+                </tr>
               ) : asset.length === 0 ? (
                 <tr>
-                  <td>No assets found</td>
+                  <td colSpan="6" style={{ textAlign: "center" }}>No assets found</td>
                 </tr>
               ) : (
                 asset.flatMap((a) =>
                   a.services.length > 0
                     ? a.services.map((s) => (
                         <tr key={`${a.id}-${s.id}`}>
-                          <td>{a.ip_address}</td>
-                          {/* if no hostname, use IP address */}
-                          <td>{a.hostname || a.ip_address}</td>
-                          <td>{a.os}</td>
-                          <td>{s.port}</td>
-                          <td>{s.service_name}</td>
-                          <td>{s.banner || "—"}</td>
+                          <td data-label="IP Address">{a.ip_address}</td>
+                          <td data-label="Hostname">{a.hostname || a.ip_address}</td>
+                          <td data-label="OS">{a.os || "—"}</td>
+                          <td data-label="Port">{s.port}</td>
+                          <td data-label="Service Name">{s.service_name || "—"}</td>
+                          <td data-label="Banner">{s.banner || "—"}</td>
                         </tr>
                       ))
                     : [
                         <tr key={a.id}>
-                          <td>{a.ip_address}</td>
-                          <td>{a.hostname}</td>
-                          <td>{a.os}</td>
-                          <td colSpan="3" style={{ color: "#888" }}>
+                          <td data-label="IP Address">{a.ip_address}</td>
+                          <td data-label="Hostname">{a.hostname || "—"}</td>
+                          <td data-label="OS">{a.os || "—"}</td>
+                          <td colSpan="3" style={{ color: "#888", textAlign: "center" }}>
                             No services
                           </td>
                         </tr>,

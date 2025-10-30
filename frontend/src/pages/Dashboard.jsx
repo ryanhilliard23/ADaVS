@@ -1,8 +1,6 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { FaBullseye } from "react-icons/fa";
 import "../css/dashboard.css";
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 function relativeTimeFromISO(iso) {
   try {
@@ -26,7 +24,32 @@ const Dashboard = () => {
   const [userEmail, setUserEmail] = useState("");
   const [scans, setScans] = useState([]);
   const [error, setError] = useState("");
-  const pollRef = useRef(null);
+
+  const fetchScans = useCallback(async () => {
+    try {
+      const token = localStorage.getItem("accessToken");
+      const res = await fetch(`/api/scans/`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+      });
+
+      if (!res.ok) {
+        throw new Error(`HTTP error! Status: ${res.status}`);
+      }
+      
+      const data = await res.json();
+      
+      let normalized = Array.isArray(data)
+        ? data
+        : data?.scans || data?.results || data?.data || [];
+      if (!Array.isArray(normalized)) normalized = [];
+
+      setScans(normalized);
+      setError("");
+    } catch (e) {
+      console.error("Failed to fetch scans:", e);
+      setError("Error loading scans");
+    }
+  }, []);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -34,7 +57,7 @@ const Dashboard = () => {
       if (!token) return;
 
       try {
-        const response = await fetch(`${API_BASE_URL}/users/me`, {
+        const response = await fetch(`/api/users/me`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -53,45 +76,14 @@ const Dashboard = () => {
   }, []);
 
   useEffect(() => {
-    let isMounted = true;
-
-    async function fetchScans() {
-      try {
-        const token = localStorage.getItem("accessToken");
-        const res = await fetch(`${API_BASE_URL}/scans/`, {
-          headers: token ? { Authorization: `Bearer ${token}` } : undefined,
-          cache: "no-store",
-        });
-        if (!res.ok) throw new Error(`Status ${res.status}`);
-        const data = await res.json();
-        let normalized = Array.isArray(data)
-          ? data
-          : data?.scans || data?.results || data?.data || [];
-        if (!Array.isArray(normalized)) normalized = [];
-        if (isMounted) {
-          setScans(normalized);
-          setError("");
-        }
-      } catch (e) {
-        if (isMounted) setError("Error loading scans");
-      }
-    }
-
     fetchScans();
-    pollRef.current = setInterval(fetchScans, 60000);
-
-    return () => {
-      isMounted = false;
-      if (pollRef.current) clearInterval(pollRef.current);
-    };
-  }, []);
+  }, [fetchScans]);
 
   const handleStartScan = async () => {
     if (!targets.trim()) {
       alert("Please enter a target to scan");
       return;
     }
-
     const token = localStorage.getItem("accessToken");
     if (!token) {
       alert("Authentication error. Please log in again.");
@@ -102,7 +94,7 @@ const Dashboard = () => {
     setScanMessage("Initiating scan...");
 
     try {
-      const response = await fetch(`${API_BASE_URL}/scans/`, {
+      const response = await fetch(`/api/scans/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -117,6 +109,9 @@ const Dashboard = () => {
         setScanMessage(
           `Scan completed! Found ${data.hosts_discovered || 0} host(s)`
         );
+
+        fetchScans();
+        
         setTimeout(() => {
           setTarget("");
           setScanMessage("");
@@ -144,7 +139,6 @@ const Dashboard = () => {
 
   return (
     <div className="dashboard-container">
-
       <div className="scan-section">
         <h1>Start a New Scan</h1>
         <div className="scan-input-container">
@@ -169,25 +163,6 @@ const Dashboard = () => {
         {scanMessage && <div>{scanMessage}</div>}
       </div>
 
-      <div className="stats-section">
-        <div className="stat-card">
-          <p>Total Assets</p>
-          <span>1,204</span>
-        </div>
-        <div className="stat-card">
-          <p>Hosts Online</p>
-          <span>987</span>
-        </div>
-        <div className="stat-card">
-          <p>Vulns Found</p>
-          <span>312</span>
-        </div>
-        <div className="stat-card">
-          <p>Critical Risks</p>
-          <span className="critical-risk">19</span>
-        </div>
-      </div>
-
       <div className="recent-scans-section">
         <h2>Recent Scans</h2>
         <table className="scans-table">
@@ -195,22 +170,20 @@ const Dashboard = () => {
             <tr>
               <th>Target</th>
               <th>Status</th>
-              <th>Assets Found</th>
               <th>Started</th>
             </tr>
           </thead>
           <tbody>
             {error ? (
               <tr>
-                <td colSpan={4}>Error loading scans</td>
+                <td colSpan={3}>Error loading scans</td>
               </tr>
             ) : scans.length === 0 ? (
               <tr>
-                <td colSpan={4}>No scans found</td>
+                <td colSpan={3}>No scans found</td>
               </tr>
             ) : (
               scans.map((s, idx) => {
-                // use 'targets' (plural) from your backend payload
                 const target =
                   s.targets ||
                   s.target ||
@@ -218,8 +191,7 @@ const Dashboard = () => {
                   s.network ||
                   s.name ||
                   "unknown";
-                  
-                // \u2705 use status as-is; normalize for CSS class
+                
                 const statusRaw = (s.status || s.state || "")
                   .toString()
                   .toLowerCase();
@@ -231,12 +203,6 @@ const Dashboard = () => {
                     ? "in-progress"
                     : statusRaw || "failed";
 
-                //o until we update payload to include, add later
-                const findings = Number.isInteger(s.findings)
-                  ? s.findings
-                  : s.vuln_count ?? s.count ?? s.results?.length ?? 0;
-
-                // show started time instead of updated/created
                 const time = s.started_at
                   ? relativeTimeFromISO(s.started_at)
                   : s.finished_at
@@ -245,14 +211,13 @@ const Dashboard = () => {
 
                 return (
                   <tr key={s.id ?? idx}>
-                    <td>{target}</td>
-                    <td>
+                    <td data-label="Target">{target}</td>
+                    <td data-label="Status">
                       <span className={`status-tag ${status}`}>
                         {status.replace("-", " ")}
                       </span>
                     </td>
-                    <td>{findings}</td>
-                    <td>{time}</td>
+                    <td data-label="Started">{time}</td>
                   </tr>
                 );
               })

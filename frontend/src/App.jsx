@@ -58,7 +58,7 @@ function App() {
     <>
       <Particles
         particleColors={particleColors}
-        particleCount={300} 
+        particleCount={500} 
         particleSpread={10}
         speed={0.5} 
         particleBaseSize={3}

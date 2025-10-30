@@ -124,7 +124,7 @@ const Particles = ({
     gl.clearColor(0, 0, 0, 0); 
     rendererRef.current = renderer;
 
-    const camera = new Camera(gl, { fov: 15 });
+    const camera = new Camera(gl, { fov: 7 });
     camera.position.set(0, 0, cameraDistance);
     cameraRef.current = camera;
 

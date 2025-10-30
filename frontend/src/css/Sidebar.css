@@ -8,7 +8,7 @@
   border-right: 1px solid var(--border-subtle); 
   display: flex;
   flex-direction: column;
-  padding: 1rem 0;
+  padding: 1rem 0 0 0;
   box-sizing: border-box;
   transition: transform var(--sidebar-transition-speed) ease, background-color 0.3s ease, border-color 0.3s ease;
   transform: translateX(0%);
@@ -81,7 +81,7 @@
   align-items: center;
   padding: 0.75rem 1.5rem; 
   border-radius: 4px;
-  margin: 0 0.75rem; 
+  margin: 0; 
   font-weight: 500;
   font-size: 0.95rem;
   cursor: pointer;
@@ -165,7 +165,7 @@
 .sidebar-profile {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 1rem;
   padding: 0.75rem 1.5rem;
   border-bottom: 1px solid var(--border-subtle);
   margin-bottom: 1rem;
@@ -177,13 +177,11 @@
 .profile-icon {
   font-size: 1.3rem;
   color: var(--text-secondary);
-  min-width: 24px;
-  margin-right: 1rem;
 }
 .profile-email {
   color: var(--text-primary);
   font-weight: 500;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
