@@ -48,13 +48,13 @@ def scan_detail(db: Session, scan_id: int):
     }
 
 # Takes a target from the frontend and scans it, parses the XML response, and adds info to the DB
-def start_scan(db: Session, targets: str):
+def start_scan(db: Session, targets: str, user_id: int):
     print("="*70)
     print("STARTING SCAN (DB MODE)")
     print("="*70)
     print(f"[SCAN] Target: {targets}")
 
-    scan = Scan(status="running", started_at=datetime.now(), targets=targets)
+    scan = Scan(status="running", started_at=datetime.now(), targets=targets, user_id=user_id)
     db.add(scan)
     db.commit()
     db.refresh(scan)

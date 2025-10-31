@@ -9,7 +9,10 @@ const Vulnerabilities = () => {
   useEffect(() => {
     const fetchVulnerabilities = async () => {
       try {
-        const response = await fetch("/api/vulnerabilities/");
+        const token = localStorage.getItem("accessToken");
+        const response = await fetch("/api/vulnerabilities/", {
+          headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+        });
 
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);

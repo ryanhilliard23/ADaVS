@@ -1,10 +1,11 @@
 from sqlalchemy.orm import Session
 from ..models.asset import Asset
 from ..models.asset_service import AssetService
+from ..models.scan import Scan
 
 # Returns a list of all assets from the database.
-def list_assets(db: Session):
-    assets = db.query(Asset).all()
+def list_assets(db: Session, user_id: int):
+    assets = (db.query(Asset).join(Scan).filter(Scan.user_id == user_id).all())
     return [
        {
            "id": asset.id,
