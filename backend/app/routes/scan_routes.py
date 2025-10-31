@@ -5,6 +5,7 @@ from pydantic import BaseModel
 from ..models.base import get_db
 from ..models.scan import Scan
 from ..services import scan_services
+from ..services import user_services
 
 router = APIRouter(prefix="/scans", tags=["scans"])
 
@@ -14,7 +15,10 @@ class ScanRequest(BaseModel):
 
 # Returns all scans in the database.
 @router.get("/", response_model=list[dict])
-def list_scans(db: Session = Depends(get_db)):
+def list_scans(
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(user_services.get_current_user)
+):
     result = db.execute(
         select(
             Scan.id,
@@ -22,7 +26,9 @@ def list_scans(db: Session = Depends(get_db)):
             Scan.status,
             Scan.started_at,
             Scan.finished_at,
-        ).order_by(Scan.started_at.desc())
+        )
+        .where(Scan.user_id == current_user['user_id'])
+        .order_by(Scan.started_at.desc())
     ).all()
 
     return [
@@ -48,5 +54,5 @@ def scan_detail(scan_id: int, db: Session = Depends(get_db)):
 
 # Starts a new scan: sends an input to scan with nmap, XML is parsed, and info is stored in DB
 @router.post("/")
-def start_scan(scan_request: ScanRequest, db: Session = Depends(get_db)):
-    return scan_services.start_scan(db, scan_request.targets)
+def start_scan(scan_request: ScanRequest, db: Session = Depends(get_db), current_user: dict = Depends(user_services.get_current_user)):
+    return scan_services.start_scan(db, scan_request.targets, current_user['user_id'])

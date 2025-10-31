@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "../css/assets.css";
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL;
-
 const Assets = () => {
   const [assetId, setAssetId] = useState(1);
   const [asset, setAsset] = useState([]);
@@ -17,7 +15,10 @@ const Assets = () => {
   const handleGetAssets = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`${API_BASE}/assets/`);
+      const token = localStorage.getItem("accessToken");
+      const res = await fetch("/api/assets/", {
+        headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+      });
       if (!res.ok) {
         throw new Error(`HTTP error! Status: ${res.status}`);
       }
@@ -37,7 +38,10 @@ const Assets = () => {
   // Handler for GET /assets/{asset_id}
   const handleGetAssetById = async () => {
     try {
-      const res = await fetch(`${API_BASE}/assets/${assetId}`);
+      const token = localStorage.getItem("accessToken");
+      const res = await fetch(`/api/assets/${assetId}`, {
+         headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+      });
       const data = await res.json();
       console.log(`GET /assets/${assetId} response:`, data);
     } catch (err) {
