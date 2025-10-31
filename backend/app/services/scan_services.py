@@ -105,7 +105,11 @@ def start_scan(db: Session, targets: str, user_id: int):
         existing_assets = {
             a.ip_address: a
             for a in db.query(Asset)
-            .filter(Asset.ip_address.in_([h["ip_address"] for h in hosts]))
+            .join(Scan)
+            .filter(
+                Asset.ip_address.in_([h["ip_address"] for h in hosts]),
+                Scan.user_id == user_id
+            )
             .all()
         }
 

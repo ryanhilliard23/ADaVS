@@ -4,10 +4,12 @@ import json
 from typing import List
 from datetime import datetime
 from sqlalchemy.orm import Session
+from ..models.scan import Scan
 from ..models.asset import Asset
 from ..models.asset_service import AssetService
 from ..models.vulnerability import Vulnerability
 from ..utils.db_utils import wake_db_up
+
 
 NUCLEI_URL = os.getenv("VPS_NUCLEI_URL")
 NUCLEI_TOKEN = os.getenv("NUCLEI_TOKEN")
@@ -21,10 +23,20 @@ def run_nuclei_scan(db: Session, scan_id: int, ips: List[str]):
 
     print("DEBUGGING 2")
 
+    scan_user_id = (
+        db.query(Scan.user_id)
+        .filter(Scan.id == scan_id)
+        .scalar()
+    )
+
     services = (
         db.query(AssetService)
         .join(Asset)
-        .filter(Asset.ip_address.in_(ips))
+        .join(Scan)
+        .filter(
+            Asset.ip_address.in_(ips),
+            Scan.user_id == scan_user_id
+        )
         .order_by(Asset.ip_address, AssetService.port)
         .all()
     )
@@ -107,6 +119,14 @@ def run_nuclei_scan(db: Session, scan_id: int, ips: List[str]):
 
             if not matched_service:
                 print("[NUCLEI] Could not match finding to service, skipping:", template_id, matched[:120])
+                continue
+            
+            existing_vuln = db.query(Vulnerability).filter(
+                Vulnerability.service_id == matched_service.id,
+                Vulnerability.template_id == (template_id[:255] if template_id else None)
+            ).first()
+
+            if existing_vuln:
                 continue
 
             vuln = Vulnerability(
