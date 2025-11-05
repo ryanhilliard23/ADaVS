@@ -101,7 +101,7 @@ def test_start_scan_failure_no_xml(db_session, monkeypatch):
     class OkNoXMLResp:
         status_code = 200
         def json(self):
-            return {}  # missing 'xml' key
+            return {} 
     monkeypatch.setattr(
         scan_services, "requests", type("req", (), {"post": lambda *a, **k: OkNoXMLResp()})
     )

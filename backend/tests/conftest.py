@@ -91,7 +91,7 @@ def disable_auth():
     for dep in targets:
         app.dependency_overrides[dep] = fake_user
 
-    # ✅ Global patch for any new FastAPI instance created in tests
+    # Global patch for any new FastAPI instance created in tests
     fastapi.Depends(lambda: fake_user)
 
 # --- Patch services to allow user_id kwarg safely ---
