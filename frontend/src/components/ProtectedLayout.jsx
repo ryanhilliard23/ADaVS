@@ -26,7 +26,7 @@ const ProtectedLayout = ({ theme, toggleTheme }) => {
       const token = localStorage.getItem('accessToken');
       if (!token) return;
       try {
-        const response = await fetch(`${API_BASE_URL}/users/me`, {
+        const response = await fetch(`https://adavs-backend.onrender.com/api/users/me`, {
           headers: { 'Authorization': `Bearer ${token}` },
         });
         if (response.ok) {
