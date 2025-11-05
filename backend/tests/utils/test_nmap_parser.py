@@ -1,104 +1,155 @@
-import xml.etree.ElementTree as ET
+import pytest
+from app.utils import nmap_parser
 
 
-def parse_nmap_xml(xml_str: str):
+# === parse_nmap_xml() TESTS ===
+
+def test_parse_nmap_xml_empty_or_incomplete():
+    """Should raise ValueError for empty or incomplete XML."""
+    with pytest.raises(ValueError, match="Incomplete or empty"):
+        nmap_parser.parse_nmap_xml("")
+    with pytest.raises(ValueError, match="Incomplete or empty"):
+        nmap_parser.parse_nmap_xml("<nmaprun>")
+
+
+def test_parse_nmap_xml_invalid_format():
+    """Should raise ValueError for malformed XML with closing tag present."""
+    # Contains the required </nmaprun> substring, but broken nesting (bad inner tag)
+    bad_xml = "<nmaprun><host><status></nmaprun>"
+    with pytest.raises(ValueError, match="Invalid XML format"):
+        nmap_parser.parse_nmap_xml(bad_xml)
+
+
+
+def test_parse_nmap_xml_valid_single_host():
+    """Should correctly parse valid Nmap XML with one 'up' host."""
+    xml = """<?xml version="1.0"?>
+    <nmaprun>
+      <host>
+        <status state="up"/>
+        <address addr="192.168.1.10" addrtype="ipv4"/>
+        <hostnames>
+          <hostname name="test-host.local"/>
+        </hostnames>
+        <os>
+          <osmatch name="Ubuntu Linux 22.04"/>
+        </os>
+        <ports>
+          <port protocol="tcp" portid="22">
+            <state state="open"/>
+            <service name="ssh" product="OpenSSH" version="8.9" extrainfo="Ubuntu"/>
+          </port>
+          <port protocol="tcp" portid="80">
+            <state state="closed"/>
+          </port>
+        </ports>
+      </host>
+    </nmaprun>
     """
-    Parse Nmap XML output into structured host data.
 
-    Returns:
-        list[dict]: Each dict has ip_address, hostname, os, services (list of dicts)
+    hosts = nmap_parser.parse_nmap_xml(xml)
+    assert len(hosts) == 1
+    h = hosts[0]
+    assert h["ip_address"] == "192.168.1.10"
+    assert h["hostname"] == "test-host.local"
+    assert h["os"] == "Ubuntu Linux 22.04"
+    assert len(h["services"]) == 1
+    s = h["services"][0]
+    assert s["port"] == 22
+    assert s["protocol"] == "tcp"
+    assert s["service_name"] == "ssh"
+    assert "OpenSSH" in s["banner"]
+    assert "8.9" in s["banner"]
+    assert "Ubuntu" in s["banner"]
+
+
+def test_parse_nmap_xml_skips_down_hosts_and_missing_addrs():
+    """Should skip hosts not 'up' and hosts missing address."""
+    xml = """<nmaprun>
+      <host>
+        <status state="down"/>
+        <address addr="10.0.0.1" addrtype="ipv4"/>
+      </host>
+      <host>
+        <status state="up"/>
+      </host>
+      <host>
+        <status state="up"/>
+        <address addr="10.0.0.2" addrtype="ipv4"/>
+        <ports>
+          <port protocol="tcp" portid="80">
+            <state state="open"/>
+            <service name="http"/>
+          </port>
+        </ports>
+      </host>
+    </nmaprun>
     """
-    hosts = []
 
-    try:
-        root = ET.fromstring(xml_str)
-    except ET.ParseError as exc:
-        raise ValueError(f"Invalid XML format: {exc}")
-
-    for host_elem in root.findall("host"):
-        # Skip hosts that are not 'up'
-        status = host_elem.find("status")
-        if status is not None and status.get("state") != "up":
-            continue
-
-        # Find IPv4 address (ignore IPv6)
-        ip_addr = None
-        for addr_elem in host_elem.findall("address"):
-            if addr_elem.get("addrtype") == "ipv4":
-                ip_addr = addr_elem.get("addr")
-                break
-        if not ip_addr:  # skip missing ipv4
-            continue
-
-        # Hostname (optional)
-        hostname = None
-        hostnames_elem = host_elem.find("hostnames")
-        if hostnames_elem is not None:
-            hn_elem = hostnames_elem.find("hostname")
-            if hn_elem is not None:
-                hostname = hn_elem.get("name")
-
-        # OS fingerprint (optional)
-        os_match = None
-        os_elem = host_elem.find("os")
-        if os_elem is not None:
-            match = os_elem.find("osmatch")
-            if match is not None:
-                os_match = match.get("name")
-
-        # Parse services
-        services = []
-        ports_elem = host_elem.find("ports")
-        if ports_elem is not None:
-            for port_elem in ports_elem.findall("port"):
-                state_elem = port_elem.find("state")
-                if state_elem is None or state_elem.get("state") != "open":
-                    continue
-
-                proto = port_elem.get("protocol")
-                port_id = int(port_elem.get("portid"))
-                service_elem = port_elem.find("service")
-                service_name = service_elem.get("name") if service_elem is not None else None
-
-                # build banner from product/version/extrainfo
-                banner = None
-                if service_elem is not None:
-                    parts = []
-                    for key in ("product", "version", "extrainfo"):
-                        val = service_elem.get(key)
-                        if val:
-                            parts.append(val)
-                    banner = " ".join(parts) if parts else None
-
-                services.append({
-                    "port": port_id,
-                    "protocol": proto,
-                    "service_name": service_name,
-                    "banner": banner,
-                })
-
-        hosts.append({
-            "ip_address": ip_addr,
-            "hostname": hostname,
-            "os": os_match,
-            "services": services,
-        })
-
-    return hosts
+    hosts = nmap_parser.parse_nmap_xml(xml)
+    assert len(hosts) == 1
+    assert hosts[0]["ip_address"] == "10.0.0.2"
 
 
-def validate_parsed_data(hosts):
+def test_parse_nmap_xml_skips_ports_not_open():
+    """Should only include open ports in services list."""
+    xml = """<nmaprun>
+      <host>
+        <status state="up"/>
+        <address addr="127.0.0.1" addrtype="ipv4"/>
+        <ports>
+          <port protocol="tcp" portid="25"><state state="closed"/></port>
+          <port protocol="udp" portid="53"><state state="open"/><service name="dns"/></port>
+        </ports>
+      </host>
+    </nmaprun>
     """
-    Validate the parsed host/service data structure.
-    Must contain at least one host, each with a valid IPv4 and nonempty services list.
+    hosts = nmap_parser.parse_nmap_xml(xml)
+    assert len(hosts) == 1
+    services = hosts[0]["services"]
+    assert len(services) == 1
+    assert services[0]["port"] == 53
+    assert services[0]["protocol"] == "udp"
+
+
+def test_parse_nmap_xml_missing_optional_fields():
+    """Handles missing hostname, os, service fields gracefully."""
+    xml = """<nmaprun>
+      <host>
+        <status state="up"/>
+        <address addr="172.16.0.5" addrtype="ipv4"/>
+        <ports>
+          <port protocol="tcp" portid="443">
+            <state state="open"/>
+            <service/>
+          </port>
+        </ports>
+      </host>
+    </nmaprun>
     """
-    if not isinstance(hosts, list) or not hosts:
-        return False
+    hosts = nmap_parser.parse_nmap_xml(xml)
+    assert hosts[0]["hostname"] is None
+    assert hosts[0]["os"] is None
+    assert hosts[0]["services"][0]["service_name"] is None
+    assert hosts[0]["services"][0]["banner"] is None
 
-    for h in hosts:
-        ip = h.get("ip_address")
-        services = h.get("services")
-        if not ip or not isinstance(services, list) or len(services) == 0:
-            return False
 
-    return True
+# === validate_parsed_data() TESTS ===
+
+def test_validate_parsed_data_empty_or_bad_type():
+    """Should return False for invalid host list inputs."""
+    assert not nmap_parser.validate_parsed_data(None)
+    assert not nmap_parser.validate_parsed_data([])
+    assert not nmap_parser.validate_parsed_data([{"services": "notalist"}])
+    assert not nmap_parser.validate_parsed_data([{"ip_address": "", "services": []}])
+
+
+def test_validate_parsed_data_valid():
+    """Should return True for valid parsed host data."""
+    hosts = [{
+        "ip_address": "192.168.0.1",
+        "hostname": "router",
+        "os": "Linux",
+        "services": [{"port": 80, "protocol": "tcp", "service_name": "http", "banner": "Apache"}]
+    }]
+    assert nmap_parser.validate_parsed_data(hosts)

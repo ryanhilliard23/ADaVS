@@ -1,5 +1,6 @@
 # backend/tests/models/test_models.py
-from datetime import datetime, UTC
+from datetime import datetime, timezone
+UTC = timezone.utc 
 import pytest
 
 from app.models.scan import Scan
