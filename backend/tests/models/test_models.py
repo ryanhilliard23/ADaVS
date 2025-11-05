@@ -1,4 +1,5 @@
-from datetime import datetime
+# backend/tests/models/test_models.py
+from datetime import datetime, UTC
 import pytest
 
 from app.models.scan import Scan
@@ -10,7 +11,7 @@ from app.models.vulnerability import Vulnerability
 def test_create_scan_and_asset_relationship(db_session):
     scan = Scan(status="running", targets="192.168.1.0/24")
     db_session.add(scan)
-    db_session.flush()  # get scan.id
+    db_session.flush()
 
     asset = Asset(scan_id=scan.id, ip_address="192.168.1.10", hostname="host1", os="linux")
     db_session.add(asset)
@@ -28,7 +29,7 @@ def test_create_scan_and_asset_relationship(db_session):
 
 
 def test_asset_services_and_vulnerabilities_relationships(db_session):
-    scan = Scan(status="completed", targets="10.0.0.0/24", finished_at=datetime.utcnow())
+    scan = Scan(status="completed", targets="10.0.0.0/24", finished_at=datetime.now(UTC))
     db_session.add(scan)
     db_session.flush()
 
@@ -36,7 +37,8 @@ def test_asset_services_and_vulnerabilities_relationships(db_session):
     db_session.add(asset)
     db_session.flush()
 
-    svc = AssetService(asset_id=asset.id, port=443, protocol="tcp", service_name="https", banner="nginx/1.25")
+    svc = AssetService(asset_id=asset.id, port=443, protocol="tcp",
+                       service_name="https", banner="nginx/1.25")
     db_session.add(svc)
     db_session.flush()
 
@@ -123,6 +125,7 @@ def test_cascade_delete_scan_deletes_assets_tree(db_session):
     ],
 )
 def test_field_bounds_and_types(db_session, ip, protocol, port):
+    """Ensure field constraints and types behave correctly."""
     scan = Scan(status="running", targets=ip)
     db_session.add(scan)
     db_session.flush()
