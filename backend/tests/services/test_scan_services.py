@@ -95,3 +95,44 @@ def test_start_scan_failure_bad_parse(db_session, monkeypatch):
 
     out = scan_services.start_scan(db_session, "10.0.0.0/24", user_id=1)
     assert out["status"] == "failed"
+
+def test_start_scan_failure_no_xml(db_session, monkeypatch):
+    """Should handle case where VPS returns 200 but no XML content."""
+    class OkNoXMLResp:
+        status_code = 200
+        def json(self):
+            return {}  # missing 'xml' key
+    monkeypatch.setattr(
+        scan_services, "requests", type("req", (), {"post": lambda *a, **k: OkNoXMLResp()})
+    )
+    out = scan_services.start_scan(db_session, "no-xml", user_id=1)
+    assert out["status"] == "failed"
+    assert "No XML" in out["error"]
+
+
+def test_start_scan_handles_nuclei_exception(db_session, monkeypatch):
+    """Should catch and log exceptions from run_nuclei_scan."""
+    class FakeResp:
+        status_code = 200
+        def json(self):
+            # valid minimal XML structure
+            return {"xml": "<nmaprun><host><status state='up'/><address addr='1.2.3.4' addrtype='ipv4'/><ports><port portid='80' protocol='tcp'><state state='open'/><service name='http'/></port></ports></host></nmaprun>"}
+    monkeypatch.setattr(
+        scan_services, "requests", type("req", (), {"post": lambda *a, **k: FakeResp()})
+    )
+    monkeypatch.setattr(scan_services, "parse_nmap_xml", lambda xml: [{
+        "ip_address": "1.2.3.4",
+        "hostname": None,
+        "os": None,
+        "services": [{"port": 80, "protocol": "tcp", "service_name": "http", "banner": None}],
+    }])
+    monkeypatch.setattr(scan_services, "validate_parsed_data", lambda h: True)
+    monkeypatch.setattr(scan_services, "run_nuclei_scan", lambda *a, **k: (_ for _ in ()).throw(RuntimeError("nuclei fail")))
+    monkeypatch.setenv("VPS_SCANNER_URL", "http://fake")
+    monkeypatch.setenv("SCANNER_TOKEN", "tok")
+
+    result = scan_services.start_scan(db_session, "1.2.3.4", user_id=5)
+    # even with nuclei failure, status should still complete
+    assert result["status"] == "completed"
+    assert "hosts_discovered" in result
+    assert result["assets_created"] >= 1
