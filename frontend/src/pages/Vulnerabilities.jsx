@@ -10,7 +10,7 @@ const Vulnerabilities = () => {
     const fetchVulnerabilities = async () => {
       try {
         const token = localStorage.getItem("accessToken");
-        const response = await fetch("/api/vulnerabilities/", {
+        const response = await fetch("https://adavs-backend.onrender.com/api/vulnerabilities/", {
           headers: token ? { Authorization: `Bearer ${token}` } : undefined,
         });
 
