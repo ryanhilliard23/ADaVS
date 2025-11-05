@@ -23,7 +23,7 @@ const Login = ({ onSwitchMode }) => {
     formData.append('password', password);
 
     try {
-      const response = await fetch(`${API_BASE_URL}/users/login`, {
+      const response = await fetch(`https://adavs-backend.onrender.com/api/users/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
