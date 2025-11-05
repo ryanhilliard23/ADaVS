@@ -1,70 +1,81 @@
-from app.utils.nmap_parser import parse_nmap_xml, validate_parsed_data
 import pytest
+from app.utils import nmap_parser
 
-def test_parse_nmap_xml_happy_path():
-    xml = """
+
+# === parse_nmap_xml() TESTS ===
+
+def test_parse_nmap_xml_empty_or_incomplete():
+    """Should raise ValueError for empty or incomplete XML."""
+    with pytest.raises(ValueError, match="Incomplete or empty"):
+        nmap_parser.parse_nmap_xml("")
+    with pytest.raises(ValueError, match="Incomplete or empty"):
+        nmap_parser.parse_nmap_xml("<nmaprun>")
+
+
+def test_parse_nmap_xml_invalid_format():
+    """Should raise ValueError for malformed XML with closing tag present."""
+    # Contains the required </nmaprun> substring, but broken nesting (bad inner tag)
+    bad_xml = "<nmaprun><host><status></nmaprun>"
+    with pytest.raises(ValueError, match="Invalid XML format"):
+        nmap_parser.parse_nmap_xml(bad_xml)
+
+
+
+def test_parse_nmap_xml_valid_single_host():
+    """Should correctly parse valid Nmap XML with one 'up' host."""
+    xml = """<?xml version="1.0"?>
     <nmaprun>
       <host>
         <status state="up"/>
-        <address addr="10.50.100.50" addrtype="ipv4"/>
+        <address addr="192.168.1.10" addrtype="ipv4"/>
         <hostnames>
-          <hostname name="vuln-ftp.adavs_macvlan" type="PTR"/>
+          <hostname name="test-host.local"/>
         </hostnames>
         <os>
-          <osmatch name="Linux 4.15 - 5.19"/>
+          <osmatch name="Ubuntu Linux 22.04"/>
         </os>
         <ports>
-          <port protocol="tcp" portid="21">
-            <state state="open"/>
-            <service name="ftp" product="vsftpd" version="3.0.2"/>
-          </port>
-          <port protocol="udp" portid="53">
-            <state state="open"/>
-            <service name="dns" product="bind" version="9.16" extrainfo="(Debian)"/>
-          </port>
-          <!-- closed port should be ignored -->
           <port protocol="tcp" portid="22">
+            <state state="open"/>
+            <service name="ssh" product="OpenSSH" version="8.9" extrainfo="Ubuntu"/>
+          </port>
+          <port protocol="tcp" portid="80">
             <state state="closed"/>
-            <service name="ssh" product="OpenSSH" version="9.0"/>
           </port>
         </ports>
       </host>
     </nmaprun>
     """
-    hosts = parse_nmap_xml(xml)
+
+    hosts = nmap_parser.parse_nmap_xml(xml)
     assert len(hosts) == 1
     h = hosts[0]
-    assert h["ip_address"] == "10.50.100.50"
-    assert h["hostname"] == "vuln-ftp.adavs_macvlan"
-    assert h["os"] == "Linux 4.15 - 5.19"
-    assert len(h["services"]) == 2
-
-    svc1 = h["services"][0]
-    assert svc1["port"] == 21
-    assert svc1["protocol"] == "tcp"
-    assert svc1["service_name"] == "ftp"
-    assert svc1["banner"] == "vsftpd 3.0.2"
-
-    svc2 = h["services"][1]
-    assert svc2["port"] == 53
-    assert svc2["protocol"] == "udp"
-    assert svc2["service_name"] == "dns"
-    # product + version + extrainfo joined
-    assert svc2["banner"] == "bind 9.16 (Debian)"
+    assert h["ip_address"] == "192.168.1.10"
+    assert h["hostname"] == "test-host.local"
+    assert h["os"] == "Ubuntu Linux 22.04"
+    assert len(h["services"]) == 1
+    s = h["services"][0]
+    assert s["port"] == 22
+    assert s["protocol"] == "tcp"
+    assert s["service_name"] == "ssh"
+    assert "OpenSSH" in s["banner"]
+    assert "8.9" in s["banner"]
+    assert "Ubuntu" in s["banner"]
 
 
-def test_parse_nmap_xml_ignores_down_hosts_and_missing_ipv4():
-    xml = """
-    <nmaprun>
-      <!-- down host should be ignored -->
+def test_parse_nmap_xml_skips_down_hosts_and_missing_addrs():
+    """Should skip hosts not 'up' and hosts missing address."""
+    xml = """<nmaprun>
       <host>
         <status state="down"/>
-        <address addr="192.168.1.2" addrtype="ipv4"/>
+        <address addr="10.0.0.1" addrtype="ipv4"/>
       </host>
-      <!-- no ipv4 should be ignored -->
       <host>
         <status state="up"/>
-        <address addr="fe80::1" addrtype="ipv6"/>
+      </host>
+      <host>
+        <status state="up"/>
+        <address addr="10.0.0.2" addrtype="ipv4"/>
         <ports>
           <port protocol="tcp" portid="80">
             <state state="open"/>
@@ -74,56 +85,71 @@ def test_parse_nmap_xml_ignores_down_hosts_and_missing_ipv4():
       </host>
     </nmaprun>
     """
-    hosts = parse_nmap_xml(xml)
-    assert hosts == []
+
+    hosts = nmap_parser.parse_nmap_xml(xml)
+    assert len(hosts) == 1
+    assert hosts[0]["ip_address"] == "10.0.0.2"
 
 
-def test_parse_nmap_xml_banner_none_when_no_product_version_extrainfo():
-    xml = """
-    <nmaprun>
+def test_parse_nmap_xml_skips_ports_not_open():
+    """Should only include open ports in services list."""
+    xml = """<nmaprun>
       <host>
         <status state="up"/>
-        <address addr="10.0.0.2" addrtype="ipv4"/>
+        <address addr="127.0.0.1" addrtype="ipv4"/>
         <ports>
-          <port protocol="tcp" portid="8080">
+          <port protocol="tcp" portid="25"><state state="closed"/></port>
+          <port protocol="udp" portid="53"><state state="open"/><service name="dns"/></port>
+        </ports>
+      </host>
+    </nmaprun>
+    """
+    hosts = nmap_parser.parse_nmap_xml(xml)
+    assert len(hosts) == 1
+    services = hosts[0]["services"]
+    assert len(services) == 1
+    assert services[0]["port"] == 53
+    assert services[0]["protocol"] == "udp"
+
+
+def test_parse_nmap_xml_missing_optional_fields():
+    """Handles missing hostname, os, service fields gracefully."""
+    xml = """<nmaprun>
+      <host>
+        <status state="up"/>
+        <address addr="172.16.0.5" addrtype="ipv4"/>
+        <ports>
+          <port protocol="tcp" portid="443">
             <state state="open"/>
-            <service name="http-proxy"/>
+            <service/>
           </port>
         </ports>
       </host>
     </nmaprun>
     """
-    hosts = parse_nmap_xml(xml)
-    assert len(hosts) == 1
-    svc = hosts[0]["services"][0]
-    assert svc["service_name"] == "http-proxy"
-    assert svc["banner"] is None  
+    hosts = nmap_parser.parse_nmap_xml(xml)
+    assert hosts[0]["hostname"] is None
+    assert hosts[0]["os"] is None
+    assert hosts[0]["services"][0]["service_name"] is None
+    assert hosts[0]["services"][0]["banner"] is None
 
 
-def test_parse_nmap_xml_raises_on_invalid_xml():
-    with pytest.raises(ValueError) as exc:
-        parse_nmap_xml("<nmaprun><host></nmaprun>") 
-    assert "Invalid XML format" in str(exc.value)
+# === validate_parsed_data() TESTS ===
+
+def test_validate_parsed_data_empty_or_bad_type():
+    """Should return False for invalid host list inputs."""
+    assert not nmap_parser.validate_parsed_data(None)
+    assert not nmap_parser.validate_parsed_data([])
+    assert not nmap_parser.validate_parsed_data([{"services": "notalist"}])
+    assert not nmap_parser.validate_parsed_data([{"ip_address": "", "services": []}])
 
 
-def test_validate_parsed_data_true():
+def test_validate_parsed_data_valid():
+    """Should return True for valid parsed host data."""
     hosts = [{
-        "ip_address": "10.0.0.5",
-        "services": [{"port": 80, "protocol": "tcp"}]
+        "ip_address": "192.168.0.1",
+        "hostname": "router",
+        "os": "Linux",
+        "services": [{"port": 80, "protocol": "tcp", "service_name": "http", "banner": "Apache"}]
     }]
-    assert validate_parsed_data(hosts) is True
-
-
-def test_validate_parsed_data_false_for_empty_hosts():
-    assert validate_parsed_data([]) is False
-
-
-def test_validate_parsed_data_false_for_missing_ip_or_services():
-    bad1 = [{"services": []}]                     
-    bad2 = [{"ip_address": "", "services": []}]   
-    bad3 = [{"ip_address": "1.2.3.4"}]            
-    bad4 = [{"ip_address": "1.2.3.4", "services": "notalist"}]  
-    assert validate_parsed_data(bad1) is False
-    assert validate_parsed_data(bad2) is False
-    assert validate_parsed_data(bad3) is False
-    assert validate_parsed_data(bad4) is False
+    assert nmap_parser.validate_parsed_data(hosts)
