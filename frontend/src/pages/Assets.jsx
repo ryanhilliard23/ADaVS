@@ -16,7 +16,7 @@ const Assets = () => {
     setLoading(true);
     try {
       const token = localStorage.getItem("accessToken");
-      const res = await fetch("/api/assets/", {
+      const res = await fetch("https://adavs-backend.onrender.com/api/assets/", {
         headers: token ? { Authorization: `Bearer ${token}` } : undefined,
       });
       if (!res.ok) {
@@ -39,7 +39,7 @@ const Assets = () => {
   const handleGetAssetById = async () => {
     try {
       const token = localStorage.getItem("accessToken");
-      const res = await fetch(`/api/assets/${assetId}`, {
+      const res = await fetch(`https://adavs-backend.onrender.com/api/assets/${assetId}`, {
          headers: token ? { Authorization: `Bearer ${token}` } : undefined,
       });
       const data = await res.json();

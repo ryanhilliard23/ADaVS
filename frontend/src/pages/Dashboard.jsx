@@ -28,7 +28,7 @@ const Dashboard = () => {
   const fetchScans = useCallback(async () => {
     try {
       const token = localStorage.getItem("accessToken");
-      const res = await fetch(`/api/scans/`, {
+      const res = await fetch(`https://adavs-backend.onrender.com/api/scans/`, {
         headers: token ? { Authorization: `Bearer ${token}` } : undefined,
       });
 
@@ -57,7 +57,7 @@ const Dashboard = () => {
       if (!token) return;
 
       try {
-        const response = await fetch(`/api/users/me`, {
+        const response = await fetch(`https://adavs-backend.onrender.com/api/users/me`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -94,7 +94,7 @@ const Dashboard = () => {
     setScanMessage("Initiating scan...");
 
     try {
-      const response = await fetch(`/api/scans/`, {
+      const response = await fetch(`https://adavs-backend.onrender.com/api/scans/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
