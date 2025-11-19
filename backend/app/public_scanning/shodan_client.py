@@ -3,27 +3,31 @@ import requests
 
 SHODAN_API_KEY = os.getenv("SHODAN_API_KEY")
 
-
 class ShodanError(Exception):
     pass
 
-
 def shodan_host(ip: str):
     if not SHODAN_API_KEY:
-        raise ShodanError("SHODAN_API_KEY not set")
+        print("[Shodan] Key missing. Skipping.")
+        return None
 
     url = f"https://api.shodan.io/shodan/host/{ip}"
     params = {"key": SHODAN_API_KEY}
 
-    r = requests.get(url, params=params)
+    try:
+        r = requests.get(url, params=params, timeout=10)
 
-    if r.status_code == 404:
-        return {}
+        if r.status_code == 404:
+            return {}
 
-    if r.status_code != 200:
-        raise ShodanError(f"Shodan error {r.status_code}: {r.text[:200]}")
+        if r.status_code != 200:
+            print(f"[Shodan] Error {r.status_code}: {r.text[:200]}")
+            return None
 
-    return r.json()
+        return r.json()
+    except Exception as e:
+        print(f"[Shodan] Request failed: {e}")
+        return None
 
 
 def normalize_shodan(ip: str, raw: dict):
@@ -47,9 +51,12 @@ def normalize_shodan(ip: str, raw: dict):
             "banner": banner,
         })
 
+    hostnames_list = raw.get("hostnames", [])
+    hostname = hostnames_list[0] if hostnames_list else None
+
     return {
         "ip_address": ip,
-        "hostname": raw.get("hostnames", [None])[0],
+        "hostname": hostname,
         "os": raw.get("os"),
         "services": services,
     }
