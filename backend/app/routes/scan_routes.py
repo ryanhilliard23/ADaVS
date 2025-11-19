@@ -9,9 +9,9 @@ from ..services import user_services
 
 router = APIRouter(prefix="/scans", tags=["scans"])
 
-
 class ScanRequest(BaseModel):
     targets: str
+    scan_type: str = "private"
 
 # Returns all scans in the database.
 @router.get("/", response_model=list[dict])
@@ -52,7 +52,12 @@ def scan_detail(scan_id: int, db: Session = Depends(get_db)):
     return scan
 
 
-# Starts a new scan: sends an input to scan with nmap, XML is parsed, and info is stored in DB
+# Starts a new scan: sends an input to scan with nmap/shodan depending on type, XML is parsed, and info is stored in DB
 @router.post("/")
 def start_scan(scan_request: ScanRequest, db: Session = Depends(get_db), current_user: dict = Depends(user_services.get_current_user)):
-    return scan_services.start_scan(db, scan_request.targets, current_user['user_id'])
+    return scan_services.start_scan(
+        db, 
+        scan_request.targets, 
+        current_user['user_id'], 
+        scan_request.scan_type
+    )

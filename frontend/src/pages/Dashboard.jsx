@@ -26,7 +26,12 @@ const Dashboard = () => {
   const [scanMessage, setScanMessage] = useState("");
   const [scans, setScans] = useState([]);
   const [error, setError] = useState("");
-  const [isPublicScan, setIsPublicScan] = useState(false); 
+
+  const [isPublicScan, setIsPublicScan] = useState(() => {
+    const savedMode = localStorage.getItem("scanMode");
+    return savedMode === "public";
+  });
+
   const [showModeSelector, setShowModeSelector] = useState(false); 
   const [notification, setNotification] = useState(""); 
   const [isWarningDismissed, setIsWarningDismissed] = useState(false); 
@@ -69,9 +74,9 @@ const Dashboard = () => {
     }
 
     if (isPublicScan) {
-        setNotification("Public Scan Active: Basic host and service discovery on any public IP, Domain, or Subnet (CIDR). No vulnerability data is stored.");
+        setNotification("Basic host and service discovery on any public IP, Domain, or Subnet (CIDR). No vulnerability data is stored.");
     } else {
-        setNotification("Private Scan Active: Full vulnerability detection and data storage. Limited to internal subnets (10.50.100.0/24).");
+        setNotification("Full vulnerability detection and data storage. Limited to internal subnets (10.50.100.0/24).");
     }
       
   }, [isPublicScan, isWarningDismissed]); 
@@ -111,12 +116,6 @@ const Dashboard = () => {
     if (!isPublicScan && targets.trim() !== "10.50.100.0/24" && targets.trim() !== "10.50.100.5") {
          alert("For Private Scanning, only the allowed subnet (10.50.100.0/24) or single IP (10.50.100.5) is permitted.");
          return;
-    }
-
-    // Public Mode Blocker
-    if (isPublicScan) {
-        alert("Public Asset Scanning is currently disabled. This feature is coming soon.");
-        return; 
     }
 
     setIsScanning(true);
@@ -171,6 +170,7 @@ const Dashboard = () => {
   
   const handleModeChange = (isPublic) => {
       setIsPublicScan(isPublic);
+      localStorage.setItem("scanMode", isPublic ? "public" : "private");
       setShowModeSelector(false); 
   };
   
