@@ -5,7 +5,7 @@ from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from .utils.limiter import limiter
 from .models.base import Base, engine
-from .routes import asset_routes, scan_routes, vulnerability_routes, user_routes
+from .routes import asset_routes, scan_routes, vulnerability_routes, user_routes, public_scan_routes
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -38,6 +38,7 @@ app.include_router(scan_routes.router, prefix="/api")
 app.include_router(asset_routes.router, prefix="/api")
 app.include_router(vulnerability_routes.router, prefix="/api")
 app.include_router(user_routes.router, prefix="/api")
+app.include_router(public_scan_routes.router, prefix="/api")
 
 @app.get("/")
 def root():
