@@ -3,6 +3,7 @@ import json
 import requests, traceback
 from datetime import datetime
 from sqlalchemy.orm import Session
+from fastapi import HTTPException, status
 from ..models.scan import Scan
 from ..models.asset import Asset
 from ..models.asset_service import AssetService
@@ -49,6 +50,17 @@ def scan_detail(db: Session, scan_id: int):
 
 # Takes a target from the frontend and scans it, parses the XML response, and adds info to the DB
 def start_scan(db: Session, targets: str, user_id: int):
+    active_scan = db.query(Scan).filter(
+        Scan.user_id == user_id,
+        Scan.status == "running"
+    ).first()
+
+    if active_scan:
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail="You already have a scan in progress. Please wait for it to finish."
+        )
+    
     print("="*70)
     print("STARTING SCAN (DB MODE)")
     print("="*70)

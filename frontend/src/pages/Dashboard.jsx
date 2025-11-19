@@ -249,7 +249,7 @@ const Dashboard = () => {
             {isScanning ? "Scanning..." : "Start Scan"}
           </button>
         </div>
-        {scanMessage && <div>{scanMessage}</div>}
+        {scanMessage && <div className="scan-message">{scanMessage}</div>} 
       </div>
 
       <div className="recent-scans-section">
