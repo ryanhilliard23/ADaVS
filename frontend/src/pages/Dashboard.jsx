@@ -1,5 +1,7 @@
-import React, { useState, useEffect, useCallback } from "react";
-import { FaBullseye } from "react-icons/fa";
+import React, { useState, useEffect, useCallback, useRef } from "react";
+import { FaBullseye, FaLock, FaGlobe, FaChevronDown } from "react-icons/fa"; 
+import { useOutletContext } from 'react-router-dom'; 
+import NotificationManager from '../components/NotificationManager'; 
 import "../css/dashboard.css";
 
 function relativeTimeFromISO(iso) {
@@ -18,12 +20,17 @@ function relativeTimeFromISO(iso) {
 }
 
 const Dashboard = () => {
+  const { userEmail } = useOutletContext() || {}; 
   const [targets, setTarget] = useState("");
   const [isScanning, setIsScanning] = useState(false);
   const [scanMessage, setScanMessage] = useState("");
-  const [userEmail, setUserEmail] = useState("");
   const [scans, setScans] = useState([]);
   const [error, setError] = useState("");
+  const [isPublicScan, setIsPublicScan] = useState(false); 
+  const [showModeSelector, setShowModeSelector] = useState(false); 
+  const [notification, setNotification] = useState(""); 
+  const [isWarningDismissed, setIsWarningDismissed] = useState(false); 
+  const statusCardRef = useRef(null); 
 
   const fetchScans = useCallback(async () => {
     try {
@@ -50,31 +57,41 @@ const Dashboard = () => {
       setError("Error loading scans");
     }
   }, []);
+  
+  useEffect(() => {
+    setIsWarningDismissed(false);
+  }, [isPublicScan]);
 
   useEffect(() => {
-    const fetchUserData = async () => {
-      const token = localStorage.getItem("accessToken");
-      if (!token) return;
+    if (isWarningDismissed) {
+        setNotification("");
+        return;
+    }
 
-      try {
-        const response = await fetch(`https://adavs-backend.onrender.com/api/users/me`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          setUserEmail(data.email);
-        } else {
-          console.error("Failed to fetch user data. Token might be invalid");
-        }
-      } catch (error) {
-        console.error("Error fetching user data:", error);
+    if (isPublicScan) {
+        setNotification("Public Scan Active: Basic host and service discovery on any public IP, Domain, or Subnet (CIDR). No vulnerability data is stored.");
+    } else {
+        setNotification("Private Scan Active: Full vulnerability detection and data storage. Limited to internal subnets (10.50.100.0/24).");
+    }
+      
+  }, [isPublicScan, isWarningDismissed]); 
+  
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        statusCardRef.current &&
+        !statusCardRef.current.contains(event.target) &&
+        !event.target.closest('.mode-status-card')
+      ) {
+          setShowModeSelector(false);
       }
     };
-
-    fetchUserData();
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
   }, []);
-
+  
   useEffect(() => {
     fetchScans();
   }, [fetchScans]);
@@ -90,8 +107,20 @@ const Dashboard = () => {
       return;
     }
 
+    // Validation for Private Scan mode
+    if (!isPublicScan && targets.trim() !== "10.50.100.0/24" && targets.trim() !== "10.50.100.5") {
+         alert("For Private Scanning, only the allowed subnet (10.50.100.0/24) or single IP (10.50.100.5) is permitted.");
+         return;
+    }
+
+    // Public Mode Blocker
+    if (isPublicScan) {
+        alert("Public Asset Scanning is currently disabled. This feature is coming soon.");
+        return; 
+    }
+
     setIsScanning(true);
-    setScanMessage("Initiating scan...");
+    setScanMessage(`Initiating ${isPublicScan ? 'Public' : 'Private'} scan...`);
 
     try {
       const response = await fetch(`https://adavs-backend.onrender.com/api/scans/`, {
@@ -100,14 +129,17 @@ const Dashboard = () => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ targets: targets.trim() }),
+        body: JSON.stringify({ 
+            targets: targets.trim(),
+            scan_type: isPublicScan ? 'public' : 'private'
+        }),
       });
 
       const data = await response.json();
 
       if (response.ok) {
         setScanMessage(
-          `Scan completed! Found ${data.hosts_discovered || 0} host(s)`
+          `${isPublicScan ? 'Public Scan' : 'Private Scan'} completed! Found ${data.hosts_discovered || 0} host(s)`
         );
 
         fetchScans();
@@ -120,7 +152,7 @@ const Dashboard = () => {
         if (response.status === 401) {
           setScanMessage("Authentication failed. Please log in again");
         } else {
-          setScanMessage(`Scan failed: ${data.detail || "Unknown error"}`);
+          setScanMessage(`${isPublicScan ? 'Public Scan' : 'Private Scan'} failed: ${data.detail || "Unknown error"}`);
         }
       }
     } catch (error) {
@@ -136,17 +168,74 @@ const Dashboard = () => {
       handleStartScan();
     }
   };
+  
+  const handleModeChange = (isPublic) => {
+      setIsPublicScan(isPublic);
+      setShowModeSelector(false); 
+  };
+  
+  const handleWarningDismiss = () => {
+      setNotification("");
+      setIsWarningDismissed(true); 
+  };
+  
+  const currentMode = isPublicScan ? 'Public' : 'Private';
+  const modeIcon = isPublicScan ? <FaGlobe /> : <FaLock />;
 
   return (
     <div className="dashboard-container">
+      
+      <NotificationManager 
+          message={notification} 
+          type={isPublicScan ? 'warning' : 'success'} 
+          onClose={handleWarningDismiss} 
+      />
+      
+      <div className="scan-mode-status-container" ref={statusCardRef}>
+        <button 
+            className={`mode-status-card ${isPublicScan ? 'public-mode' : 'private-mode'}`} 
+            onClick={() => setShowModeSelector(prev => !prev)}
+            aria-expanded={showModeSelector}
+            aria-controls="mode-selector-popover"
+            title="Click to switch between Public and Private scanning"
+        >
+            {modeIcon}
+            <span style={{ margin: "0 0.5rem" }}>{currentMode} Scan Mode</span>
+            <FaChevronDown className={`dropdown-arrow ${showModeSelector ? 'open' : ''}`} />
+        </button>
+
+        {showModeSelector && (
+            <div id="mode-selector-popover" className="mode-selector-popover">
+                <div className="popover-header">Select Scanning Mode</div>
+                
+                <button className={`popover-mode-button ${!isPublicScan ? 'active' : ''}`} onClick={() => handleModeChange(false)}>
+                    <FaLock />
+                    <div>
+                        <strong>Private Asset Scan</strong>
+                        <p>Full vulnerability detection and data storage. Limited to internal subnets (10.50.100.0/24).</p>
+                    </div>
+                </button>
+                
+                <button className={`popover-mode-button ${isPublicScan ? 'active' : ''}`} onClick={() => handleModeChange(true)}>
+                    <FaGlobe />
+                    <div>
+                        <strong>Public Asset Scan</strong>
+                        <p>Basic host and service discovery on any public IP, Domain, or Subnet (CIDR). No vulnerability data is stored.</p>
+                    </div>
+                </button>
+            </div>
+        )}
+      </div>
+
       <div className="scan-section">
         <h1>Start a New Scan</h1>
+        
         <div className="scan-input-container">
           <FaBullseye className="scan-input-icon" />
           <input
             type="text"
             className="scan-input"
-            placeholder="Enter target (e.g., 10.50.100.0/24, 10.50.100.5)"
+            placeholder={isPublicScan ? "Enter public IP, Domain, or Subnet (e.g., 8.8.8.8/24)" : "Enter private target (10.50.100.0/24 or 10.50.100.5)"}
             value={targets}
             onChange={(e) => setTarget(e.target.value)}
             onKeyPress={handleKeyPress}
@@ -165,65 +254,57 @@ const Dashboard = () => {
 
       <div className="recent-scans-section">
         <h2>Recent Scans</h2>
-        <table className="scans-table">
-          <thead>
-            <tr>
-              <th>Target</th>
-              <th>Status</th>
-              <th>Started</th>
-            </tr>
-          </thead>
-          <tbody>
-            {error ? (
-              <tr>
-                <td colSpan={3}>Error loading scans</td>
-              </tr>
-            ) : scans.length === 0 ? (
-              <tr>
-                <td colSpan={3}>No scans found</td>
-              </tr>
-            ) : (
-              scans.map((s, idx) => {
-                const target =
-                  s.targets ||
-                  s.target ||
-                  s.host ||
-                  s.network ||
-                  s.name ||
-                  "unknown";
-                
-                const statusRaw = (s.status || s.state || "")
-                  .toString()
-                  .toLowerCase();
-                const status =
-                  statusRaw.includes("complete") || statusRaw.includes("done")
-                    ? "completed"
-                    : statusRaw.includes("progress") ||
-                      statusRaw.includes("running")
-                    ? "in-progress"
-                    : statusRaw || "failed";
+        <div className="table-scroll-container">
+            <table className="scans-table">
+                <thead>
+                    <tr>
+                    <th>Target</th>
+                    <th>Status</th>
+                    <th>Started</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {error ? (
+                    <tr>
+                        <td colSpan={3}>Error loading scans</td>
+                    </tr>
+                    ) : scans.length === 0 ? (
+                    <tr>
+                        <td colSpan={3}>No scans found</td>
+                    </tr>
+                    ) : (
+                    scans.map((s, idx) => {
+                        const target = s.targets || s.target || s.host || s.network || s.name || "unknown";
+                        
+                        const statusRaw = (s.status || s.state || "").toString().toLowerCase();
+                        const status = statusRaw.includes("complete") || statusRaw.includes("done")
+                            ? "completed"
+                            : statusRaw.includes("progress") || statusRaw.includes("running")
+                            ? "in-progress"
+                            : statusRaw || "failed";
 
-                const time = s.started_at
-                  ? relativeTimeFromISO(s.started_at)
-                  : s.finished_at
-                  ? relativeTimeFromISO(s.finished_at)
-                  : "unknown";
+                        const time = s.started_at
+                        ? relativeTimeFromISO(s.started_at)
+                        : s.finished_at
+                        ? relativeTimeFromISO(s.finished_at)
+                        : "unknown";
 
-                return (
-                  <tr key={s.id ?? idx}>
-                    <td data-label="Target">{target}</td>
-                    <td data-label="Status">
-                      <span className={`status-tag ${status}`}>
-                        {status.replace("-", " ")}
-                      </span>
-                    </td>
-                    <td data-label="Started">{time}</td>
-                  </tr>
-                );
-              })
-            )}
-          </tbody>
-        </table>
+                        return (
+                        <tr key={s.id ?? idx}>
+                            <td data-label="Target">{target}</td>
+                            <td data-label="Status">
+                            <span className={`status-tag ${status}`}>
+                                {status.replace("-", " ")}
+                            </span>
+                            </td>
+                            <td data-label="Started">{time}</td>
+                        </tr>
+                        );
+                    })
+                    )}
+                </tbody>
+            </table>
+        </div>
       </div>
     </div>
   );
