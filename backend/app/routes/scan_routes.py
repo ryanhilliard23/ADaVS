@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from sqlalchemy import select
 from pydantic import BaseModel
@@ -6,6 +6,7 @@ from ..models.base import get_db
 from ..models.scan import Scan
 from ..services import scan_services
 from ..services import user_services
+from ..utils.validator import validate_target
 
 router = APIRouter(prefix="/scans", tags=["scans"])
 
@@ -55,9 +56,17 @@ def scan_detail(scan_id: int, db: Session = Depends(get_db)):
 # Starts a new scan: sends an input to scan with nmap/shodan depending on type, XML is parsed, and info is stored in DB
 @router.post("/")
 def start_scan(scan_request: ScanRequest, db: Session = Depends(get_db), current_user: dict = Depends(user_services.get_current_user)):
+    try:
+        clean_target = validate_target(scan_request.targets)
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, 
+            detail=str(e)
+        )
+
     return scan_services.start_scan(
         db, 
-        scan_request.targets, 
+        clean_target,
         current_user['user_id'], 
         scan_request.scan_type
     )

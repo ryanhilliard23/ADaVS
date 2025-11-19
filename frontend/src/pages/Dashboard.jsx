@@ -103,18 +103,18 @@ const Dashboard = () => {
 
   const handleStartScan = async () => {
     if (!targets.trim()) {
-      alert("Please enter a target to scan");
+      setNotification("Please enter a target to scan");
       return;
     }
     const token = localStorage.getItem("accessToken");
     if (!token) {
-      alert("Authentication error. Please log in again.");
+      setNotification("Authentication error. Please log in again.");
       return;
     }
 
     // Validation for Private Scan mode
-    if (!isPublicScan && targets.trim() !== "10.50.100.0/24" && targets.trim() !== "10.50.100.5") {
-         alert("For Private Scanning, only the allowed subnet (10.50.100.0/24) or single IP (10.50.100.5) is permitted.");
+    if (!isPublicScan && targets.trim() !== "10.50.100.0/24") {
+         setNotification("For Private Scanning, only the allowed subnet (10.50.100.0/24) is permitted.");
          return;
     }
 
@@ -235,7 +235,7 @@ const Dashboard = () => {
           <input
             type="text"
             className="scan-input"
-            placeholder={isPublicScan ? "Enter public IP, Domain, or Subnet (e.g., 8.8.8.8/24)" : "Enter private target (10.50.100.0/24 or 10.50.100.5)"}
+            placeholder={isPublicScan ? "Enter public IP, Domain, or Subnet (e.g., scanme.nmap.org, 8.8.8.8)" : "Enter private target (10.50.100.0/24)"}
             value={targets}
             onChange={(e) => setTarget(e.target.value)}
             onKeyPress={handleKeyPress}
