@@ -1,14 +1,20 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlalchemy.orm import Session
 from fastapi.security import OAuth2PasswordRequestForm
 from ..models.base import get_db
 from ..services import user_services
 from ..services.user_services import User
+from ..utils.limiter import limiter
 
 router = APIRouter(prefix="/users", tags=["users"])
 
 @router.post("/register", response_model=User, status_code=status.HTTP_201_CREATED)
-def register_user(user: user_services.UserCreate, db: Session = Depends(get_db)):
+@limiter.limit("5/5 minutes")
+def register_user(
+    request: Request,
+    user: user_services.UserCreate, 
+    db: Session = Depends(get_db)
+):
     db_user = user_services.get_user_by_email(db, email=user.email)
     if db_user:
         raise HTTPException(

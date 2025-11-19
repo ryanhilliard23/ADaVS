@@ -31,10 +31,13 @@ const Register = ({ onSwitchMode }) => {
         },
         body: JSON.stringify({ email, password }),
       });
+      const data = await response.json();
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.detail || 'Registration failed.');
+        if (response.status === 429) {
+          throw new Error(data.error || "Too many attempts. Please wait a few minutes.");
+        }
+        throw new Error(data.detail || 'Registration failed.');
       }
 
       onSwitchMode('login');
