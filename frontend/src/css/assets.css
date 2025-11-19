@@ -113,3 +113,19 @@
      margin-right: auto;
   }
 }
+
+.banner-cell {
+  max-width: 300px;       
+  white-space: nowrap;    
+  overflow: hidden;        
+  text-overflow: ellipsis; 
+  cursor: pointer;        
+}
+
+@media (max-width: 700px) {
+  .banner-cell {
+    max-width: 100%;
+    white-space: normal;
+    word-break: break-all; 
+  }
+}
