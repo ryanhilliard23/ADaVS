@@ -1,0 +1,25 @@
+version: "3.8"
+
+networks:
+  adavs_macvlan:
+    external: true
+
+services:
+  vuln-ftp:
+    image: fauria/vsftpd
+    container_name: vuln-ftp
+    networks:
+      adavs_macvlan:
+        ipv4_address: 10.50.100.50
+    mem_limit: 32m
+    restart: unless-stopped
+
+  vuln-redis:
+    image: redis:5.0
+    container_name: vuln-redis
+    networks:
+      adavs_macvlan:
+        ipv4_address: 10.50.100.51
+    command: ["redis-server", "--protected-mode", "no"]
+    mem_limit: 32m
+    restart: unless-stopped
