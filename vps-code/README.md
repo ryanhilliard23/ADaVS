@@ -1,6 +1,6 @@
 # ADaVS Infrastructure & VPS Setup
 
-This directory contains the infrastructure code for the ADaVS (Asset Discovery and Vulnerability Scanning) system.
+This directory contains the infrastructure code for the VPS of the ADaVS (Asset Discovery and Vulnerability Scanning) system.
 
 ## Architecture
 
@@ -28,7 +28,6 @@ The VPS uses a **Hybrid Network** approach:
 
 ### 1. Initial Network Setup
 The Macvlan network must be created once before running anything.
-*(Replace `eth0` with your main interface if different).*
 
 ```bash
 docker network create -d macvlan \
@@ -38,7 +37,7 @@ docker network create -d macvlan \
   adavs_macvlan
 
 2. Deploy Vulnerable Assets
-Start the FTP, Redis, and other intentional vulnerabilities.
+Start the FTP, Redis, and other intentional vulnerabilities. Make sure to be in the directory with the docker-compose.yml file.
 
 Bash
 
