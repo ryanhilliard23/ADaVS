@@ -4,7 +4,6 @@ from app.services import scan_services
 from app.models.user import User
 import pytest
 
-
 def test_list_scans_and_detail(db_session):
     s1 = Scan(status="running", targets="127.0.0.1")
     s2 = Scan(status="completed", targets="8.8.8.8")
@@ -45,11 +44,12 @@ def test_start_scan_success_creates_assets_and_services(db_session, monkeypatch)
 
     monkeypatch.setattr(scan_services, "parse_nmap_xml", fake_parse)
     monkeypatch.setattr(scan_services, "validate_parsed_data", lambda hosts: True)
+    monkeypatch.setattr(scan_services, "run_nuclei_scan", lambda *a: {"status": "ok"})
 
     monkeypatch.setenv("VPS_SCANNER_URL", "http://fake-scanner")
     monkeypatch.setenv("SCANNER_TOKEN", "secret")
 
-    out = scan_services.start_scan(db_session, "10.0.0.0/24", user_id=1)
+    out = scan_services.start_scan(db_session, "10.0.0.0/24", user_id=1, scan_type="private")
     assert out["status"] == "completed"
     assert out["hosts_discovered"] == 1
     assert out["assets_created"] == 1
@@ -74,7 +74,7 @@ def test_start_scan_failure_non_200(db_session, monkeypatch):
     monkeypatch.setattr(scan_services, "parse_nmap_xml", lambda xml: [])
     monkeypatch.setattr(scan_services, "validate_parsed_data", lambda hosts: False)
 
-    out = scan_services.start_scan(db_session, "badtarget", user_id=1)
+    out = scan_services.start_scan(db_session, "badtarget", user_id=1, scan_type="private")
     assert out["status"] == "failed"
     assert "error" in out
 
@@ -92,7 +92,7 @@ def test_start_scan_failure_bad_parse(db_session, monkeypatch):
     monkeypatch.setattr(scan_services, "parse_nmap_xml", lambda xml: [])
     monkeypatch.setattr(scan_services, "validate_parsed_data", lambda hosts: False)
 
-    out = scan_services.start_scan(db_session, "10.0.0.0/24", user_id=1)
+    out = scan_services.start_scan(db_session, "10.0.0.0/24", user_id=1, scan_type="private")
     assert out["status"] == "failed"
 
 def test_start_scan_failure_no_xml(db_session, monkeypatch):
@@ -103,7 +103,7 @@ def test_start_scan_failure_no_xml(db_session, monkeypatch):
     monkeypatch.setattr(
         scan_services, "requests", type("req", (), {"post": lambda *a, **k: OkNoXMLResp()})
     )
-    out = scan_services.start_scan(db_session, "no-xml", user_id=1)
+    out = scan_services.start_scan(db_session, "no-xml", user_id=1, scan_type="private")
     assert out["status"] == "failed"
     assert "No XML" in out["error"]
 
@@ -112,8 +112,7 @@ def test_start_scan_handles_nuclei_exception(db_session, monkeypatch):
     class FakeResp:
         status_code = 200
         def json(self):
-            # valid minimal XML structure
-            return {"xml": "<nmaprun><host><status state='up'/><address addr='1.2.3.4' addrtype='ipv4'/><ports><port portid='80' protocol='tcp'><state state='open'/><service name='http'/></port></ports></host></nmaprun>"}
+            return {"xml": "<nmaprun>...</nmaprun>"}    
     monkeypatch.setattr(
         scan_services, "requests", type("req", (), {"post": lambda *a, **k: FakeResp()})
     )
@@ -128,8 +127,7 @@ def test_start_scan_handles_nuclei_exception(db_session, monkeypatch):
     monkeypatch.setenv("VPS_SCANNER_URL", "http://fake")
     monkeypatch.setenv("SCANNER_TOKEN", "tok")
 
-    result = scan_services.start_scan(db_session, "1.2.3.4", user_id=5)
-    # even with nuclei failure, status should still complete
+    result = scan_services.start_scan(db_session, "1.2.3.4", user_id=5, scan_type="private")
     assert result["status"] == "completed"
     assert "hosts_discovered" in result
     assert result["assets_created"] >= 1
