@@ -1,11 +1,7 @@
 import pytest
 from app.utils import nmap_parser
 
-
-# === parse_nmap_xml() TESTS ===
-
 def test_parse_nmap_xml_empty_or_incomplete():
-    """Should raise ValueError for empty or incomplete XML."""
     with pytest.raises(ValueError, match="Incomplete or empty"):
         nmap_parser.parse_nmap_xml("")
     with pytest.raises(ValueError, match="Incomplete or empty"):
@@ -13,7 +9,6 @@ def test_parse_nmap_xml_empty_or_incomplete():
 
 
 def test_parse_nmap_xml_invalid_format():
-    """Should raise ValueError for malformed XML with closing tag present."""
     # Contains the required </nmaprun> substring, but broken nesting (bad inner tag)
     bad_xml = "<nmaprun><host><status></nmaprun>"
     with pytest.raises(ValueError, match="Invalid XML format"):
@@ -22,7 +17,6 @@ def test_parse_nmap_xml_invalid_format():
 
 
 def test_parse_nmap_xml_valid_single_host():
-    """Should correctly parse valid Nmap XML with one 'up' host."""
     xml = """<?xml version="1.0"?>
     <nmaprun>
       <host>
@@ -64,7 +58,6 @@ def test_parse_nmap_xml_valid_single_host():
 
 
 def test_parse_nmap_xml_skips_down_hosts_and_missing_addrs():
-    """Should skip hosts not 'up' and hosts missing address."""
     xml = """<nmaprun>
       <host>
         <status state="down"/>
@@ -92,7 +85,6 @@ def test_parse_nmap_xml_skips_down_hosts_and_missing_addrs():
 
 
 def test_parse_nmap_xml_skips_ports_not_open():
-    """Should only include open ports in services list."""
     xml = """<nmaprun>
       <host>
         <status state="up"/>
@@ -113,7 +105,6 @@ def test_parse_nmap_xml_skips_ports_not_open():
 
 
 def test_parse_nmap_xml_missing_optional_fields():
-    """Handles missing hostname, os, service fields gracefully."""
     xml = """<nmaprun>
       <host>
         <status state="up"/>
@@ -133,11 +124,7 @@ def test_parse_nmap_xml_missing_optional_fields():
     assert hosts[0]["services"][0]["service_name"] is None
     assert hosts[0]["services"][0]["banner"] is None
 
-
-# === validate_parsed_data() TESTS ===
-
 def test_validate_parsed_data_empty_or_bad_type():
-    """Should return False for invalid host list inputs."""
     assert not nmap_parser.validate_parsed_data(None)
     assert not nmap_parser.validate_parsed_data([])
     assert not nmap_parser.validate_parsed_data([{"services": "notalist"}])
@@ -145,7 +132,6 @@ def test_validate_parsed_data_empty_or_bad_type():
 
 
 def test_validate_parsed_data_valid():
-    """Should return True for valid parsed host data."""
     hosts = [{
         "ip_address": "192.168.0.1",
         "hostname": "router",

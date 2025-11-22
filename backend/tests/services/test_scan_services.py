@@ -1,4 +1,3 @@
-# backend/tests/services/test_scan_services.py
 import types
 from app.models.scan import Scan
 from app.services import scan_services
@@ -97,7 +96,6 @@ def test_start_scan_failure_bad_parse(db_session, monkeypatch):
     assert out["status"] == "failed"
 
 def test_start_scan_failure_no_xml(db_session, monkeypatch):
-    """Should handle case where VPS returns 200 but no XML content."""
     class OkNoXMLResp:
         status_code = 200
         def json(self):
@@ -111,7 +109,6 @@ def test_start_scan_failure_no_xml(db_session, monkeypatch):
 
 
 def test_start_scan_handles_nuclei_exception(db_session, monkeypatch):
-    """Should catch and log exceptions from run_nuclei_scan."""
     class FakeResp:
         status_code = 200
         def json(self):
@@ -136,3 +133,36 @@ def test_start_scan_handles_nuclei_exception(db_session, monkeypatch):
     assert result["status"] == "completed"
     assert "hosts_discovered" in result
     assert result["assets_created"] >= 1
+
+def test_start_public_scan_success(db_session, monkeypatch):
+    from app.services import scan_services
+    
+    # Mock the recon service to return fake OSINT data
+    def fake_discover(domain):
+        return [
+            {
+                "ip_address": "1.1.1.1",
+                "hostname": "one.one.one.one",
+                "os": "Linux",
+                "services": [
+                    {"port": 443, "protocol": "tcp", "service_name": "https", "banner": "cloudflare"}
+                ]
+            }
+        ]
+
+    monkeypatch.setattr(scan_services, "discover_domain_assets", fake_discover)
+
+    # Execute public scan
+    result = scan_services.start_scan(
+        db_session, 
+        targets="example.com", 
+        user_id=1, 
+        scan_type="public"
+    )
+
+    assert result["status"] == "completed"
+    assert result["hosts_discovered"] == 1
+    
+    # Verify it actually hit the DB
+    detail = scan_services.scan_detail(db_session, result["scan_id"], user_id=1)
+    assert detail["assets"][0]["ip_address"] == "1.1.1.1"

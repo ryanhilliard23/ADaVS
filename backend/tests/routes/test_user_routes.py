@@ -16,7 +16,6 @@ client = TestClient(app)
 
 @pytest.fixture(autouse=True)
 def patch_services(monkeypatch):
-    """Mock all user service dependencies for all tests."""
     monkeypatch.setattr(ur.user_services, "get_user_by_email", Mock())
     monkeypatch.setattr(ur.user_services, "create_user", Mock())
     monkeypatch.setattr(ur.user_services, "authenticate_user", Mock())
@@ -31,7 +30,6 @@ def patch_services(monkeypatch):
 
 
 def test_register_user_success(monkeypatch):
-    """Should register a new user successfully."""
     fake_user = {"id": 1, "email": "new@x.com"}
     ur.user_services.get_user_by_email.return_value = None
     ur.user_services.create_user.return_value = fake_user
@@ -43,7 +41,6 @@ def test_register_user_success(monkeypatch):
 
 
 def test_register_user_email_exists(monkeypatch):
-    """Should raise 400 if email already exists."""
     ur.user_services.get_user_by_email.return_value = {"email": "dup@x.com"}
 
     resp = client.post("/users/register", json={"email": "dup@x.com", "password": "123"})
@@ -52,7 +49,6 @@ def test_register_user_email_exists(monkeypatch):
 
 
 def test_login_success(monkeypatch):
-    """Should return access token when valid credentials."""
     ur.user_services.authenticate_user.return_value = {"id": 1, "email": "user@x.com"}
     ur.user_services.create_access_token.return_value = "token123"
 
@@ -63,7 +59,6 @@ def test_login_success(monkeypatch):
 
 
 def test_login_invalid_credentials(monkeypatch):
-    """Should reject wrong password or user not found."""
     ur.user_services.authenticate_user.return_value = None
 
     data = {"username": "bad@x.com", "password": "wrong"}

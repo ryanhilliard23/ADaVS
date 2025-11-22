@@ -18,7 +18,6 @@ def fake_user_obj():
 
 
 def test_get_password_hash_and_verify():
-    """Ensure hashing and verification work as expected."""
     pwd = "mypassword"
     hashed = us.get_password_hash(pwd)
     assert hashed != pwd
@@ -27,7 +26,6 @@ def test_get_password_hash_and_verify():
 
 
 def test_get_user_by_email(monkeypatch, fake_user_obj):
-    """Should query user by email and return the result."""
     mock_db = Mock()
     mock_query = mock_db.query.return_value
     mock_filter = mock_query.filter.return_value
@@ -39,7 +37,6 @@ def test_get_user_by_email(monkeypatch, fake_user_obj):
 
 
 def test_create_user(monkeypatch):
-    """Should create user, commit, refresh, and return db_user."""
     mock_db = Mock()
     mock_user_model = Mock()
     monkeypatch.setattr(us, "user_model", mock_user_model)
@@ -56,7 +53,6 @@ def test_create_user(monkeypatch):
 
 
 def test_authenticate_user_success(monkeypatch, fake_user_obj):
-    """Should return user when password is correct."""
     monkeypatch.setattr(us, "get_user_by_email", lambda db, email: fake_user_obj)
     monkeypatch.setattr(us, "verify_password", lambda plain, hashed: True)
     out = us.authenticate_user(Mock(), "t@x.com", "secret")
@@ -64,7 +60,6 @@ def test_authenticate_user_success(monkeypatch, fake_user_obj):
 
 
 def test_authenticate_user_failure(monkeypatch, fake_user_obj):
-    """Should return None when password is incorrect or user missing."""
     monkeypatch.setattr(us, "get_user_by_email", lambda db, email: None)
     assert us.authenticate_user(Mock(), "t@x.com", "secret") is None
 
@@ -74,7 +69,6 @@ def test_authenticate_user_failure(monkeypatch, fake_user_obj):
 
 
 def test_create_access_token_and_decode(monkeypatch, fake_user_obj):
-    """Ensure token creation and decoding with mock PASETO key works."""
     fake_payload = {
         "sub": fake_user_obj.email,
         "user_id": fake_user_obj.id,
@@ -88,7 +82,6 @@ def test_create_access_token_and_decode(monkeypatch, fake_user_obj):
 
 
 def test_get_current_user_valid(monkeypatch, fake_user_obj):
-    """Should decode valid token and return user info."""
     payload = {"sub": fake_user_obj.email, "user_id": fake_user_obj.id}
     fake_decoded = Mock(payload=json.dumps(payload).encode())
 
@@ -98,7 +91,6 @@ def test_get_current_user_valid(monkeypatch, fake_user_obj):
 
 
 def test_get_current_user_invalid_payload(monkeypatch):
-    """Should raise HTTPException for missing payload fields."""
     bad_payload = json.dumps({"foo": "bar"}).encode()
     fake_decoded = Mock(payload=bad_payload)
     monkeypatch.setattr(us.pyseto, "decode", lambda k, t: fake_decoded)
@@ -110,7 +102,6 @@ def test_get_current_user_invalid_payload(monkeypatch):
 
 
 def test_get_current_user_decode_failure(monkeypatch):
-    """Should raise HTTPException for decoding errors."""
     monkeypatch.setattr(us.pyseto, "decode", lambda *a, **k: (_ for _ in ()).throw(Exception("bad token")))
     from fastapi import HTTPException
     with pytest.raises(HTTPException):

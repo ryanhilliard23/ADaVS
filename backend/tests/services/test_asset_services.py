@@ -6,7 +6,6 @@ from app.services import asset_services
 
 
 def test_list_assets_stub_message(db_session):
-    """Ensure list_assets returns stub or real DB list safely."""
     out = asset_services.list_assets(db_session, user_id=1)
     # Depending on whether conftest stub is active or not
     if isinstance(out, dict) and "message" in out:
@@ -20,14 +19,12 @@ def test_list_assets_stub_message(db_session):
 
 
 def test_asset_detail_not_found(db_session):
-    """Ensure None is returned when asset not found."""
     result = asset_services.asset_detail(db_session, 999, user_id=1)
     # Either None (real service) or dict (stub)
     assert result is None or isinstance(result, dict)
 
 
 def test_asset_detail_happy_path(db_session):
-    """Verify asset_detail returns structured asset info with services + vulns."""
     # Setup DB entities
     scan = Scan(status="completed", targets="10.0.0.0/24")
     db_session.add(scan)

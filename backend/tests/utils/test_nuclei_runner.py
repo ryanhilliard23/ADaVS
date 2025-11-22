@@ -5,14 +5,12 @@ from app.utils import nuclei_runner
 
 @pytest.fixture
 def mock_db():
-    """Simple fake DB with query, filter, etc."""
     mock = Mock()
     mock.query.return_value.filter.return_value.scalar.return_value = 1
     return mock
 
 
 def test_no_services(monkeypatch, mock_db, capsys):
-    """Case: when no services are found."""
     # return empty list for .all()
     mock_db.query.return_value.join.return_value.join.return_value.filter.return_value.order_by.return_value.all.return_value = []
 
@@ -23,7 +21,6 @@ def test_no_services(monkeypatch, mock_db, capsys):
 
 
 def test_request_fails(monkeypatch, mock_db):
-    """Case: when requests.post throws."""
     mock_svc = Mock()
     mock_svc.asset.ip_address = "1.2.3.4"
     mock_svc.port = 80
@@ -41,7 +38,6 @@ def test_request_fails(monkeypatch, mock_db):
 
 
 def test_runner_returns_non_list(monkeypatch, mock_db, capsys):
-    """Case: runner returns non-list JSON."""
     mock_svc = Mock()
     mock_svc.asset.ip_address = "1.2.3.4"
     mock_svc.port = 443
@@ -67,7 +63,6 @@ def test_runner_returns_non_list(monkeypatch, mock_db, capsys):
 
 
 def test_runner_skips_existing_vuln(monkeypatch, mock_db):
-    """Case: nuclei result already exists, should skip insert."""
     mock_svc = Mock()
     mock_svc.asset.ip_address = "1.2.3.4"
     mock_svc.port = 8080

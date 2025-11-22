@@ -5,7 +5,6 @@ from app.main import app
 
 @pytest.fixture
 def client(monkeypatch):
-    """Create a TestClient with auth bypassed."""
     from app.models.base import get_db
 
     # Disable auth dependency to avoid 401
@@ -16,22 +15,26 @@ def client(monkeypatch):
     return TestClient(app)
 
 
-def test_list_assets_calls_service_and_returns_json(client, monkeypatch):
-    """Verify that GET /api/assets/ calls the service layer and returns JSON."""
-    called = {}
-
-    def fake_list_assets(db, user_id=None):
-        called["hit"] = True
-        return [{"id": 1, "ip_address": "10.0.0.5"}]
-
+def test_list_assets_returns_correct_structure(client, monkeypatch):
     from app.services import asset_services
-    monkeypatch.setattr(asset_services, "list_assets", fake_list_assets)
+
+    mock_assets = [
+        {
+            "id": 10,
+            "ip_address": "192.168.1.50",
+            "hostname": "test-server",
+            "os": "Ubuntu",
+            "services": []
+        }
+    ]
+
+    monkeypatch.setattr(asset_services, "list_assets", lambda db, user_id=None: mock_assets)
 
     response = client.get("/api/assets/")
-    assert response.status_code in (200, 401)  # allow unauthorized if auth enabled
-    if response.status_code == 200:
-        assert called.get("hit") is True
-        assert response.json() == [{"id": 1, "ip_address": "10.0.0.5"}]
+    
+    assert response.status_code == 200
+    assert response.json() == mock_assets
+    assert "message" not in response.json()
 
 
 def test_asset_detail_returns_stub_message(client, monkeypatch):

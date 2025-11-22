@@ -5,7 +5,6 @@ from sqlalchemy.exc import OperationalError
 from app.utils.db_utils import wake_db_up
 
 def test_wake_db_up_success(monkeypatch, capsys):
-    """Should execute and commit successfully."""
     mock_db = Mock()
     wake_db_up(mock_db)
     mock_db.execute.assert_called_once()
@@ -15,7 +14,6 @@ def test_wake_db_up_success(monkeypatch, capsys):
 
 
 def test_wake_db_up_reconnect_success(monkeypatch, capsys):
-    """Should handle failure and then reconnect successfully."""
     mock_db = Mock()
 
     # fail first call, succeed on retry
@@ -38,7 +36,6 @@ def test_wake_db_up_reconnect_success(monkeypatch, capsys):
 
 
 def test_wake_db_up_reconnect_failure(monkeypatch, capsys):
-    """Should fail even after retry and raise final exception."""
     mock_db = Mock()
 
     mock_db.execute.side_effect = Exception("db down")

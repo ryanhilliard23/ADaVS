@@ -1,4 +1,3 @@
-# backend/tests/models/test_models.py
 from datetime import datetime, timezone
 UTC = timezone.utc 
 import pytest
@@ -126,7 +125,6 @@ def test_cascade_delete_scan_deletes_assets_tree(db_session):
     ],
 )
 def test_field_bounds_and_types(db_session, ip, protocol, port):
-    """Ensure field constraints and types behave correctly."""
     scan = Scan(status="running", targets=ip)
     db_session.add(scan)
     db_session.flush()

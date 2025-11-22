@@ -5,10 +5,8 @@ from app.main import app
 
 @pytest.fixture
 def client(monkeypatch):
-    """Create a FastAPI TestClient with auth disabled for these tests."""
     from app.models.base import get_db
 
-    # Clear previous overrides and disable auth
     app.dependency_overrides = {}
     app.dependency_overrides[get_db] = lambda: iter([object()])
     app.dependency_overrides["verify_token"] = lambda: None
@@ -17,7 +15,6 @@ def client(monkeypatch):
 
 
 def test_list_scans_calls_service(client, monkeypatch):
-    """Verify GET /api/scans/ calls the scan_services.list_scans."""
     from app.services import scan_services
 
     called = {}
@@ -37,7 +34,6 @@ def test_list_scans_calls_service(client, monkeypatch):
 
 
 def test_scan_detail_found(client, monkeypatch):
-    """Ensure scan_detail returns expected JSON when found."""
     from app.services import scan_services
 
     def fake_scan_detail(db, sid, user_id=None):
@@ -52,7 +48,6 @@ def test_scan_detail_found(client, monkeypatch):
 
 
 def test_scan_detail_404(client, monkeypatch):
-    """Ensure 404 returned when scan not found."""
     from app.services import scan_services
 
     def fake_scan_detail(db, sid, user_id=None):
@@ -68,7 +63,6 @@ def test_scan_detail_404(client, monkeypatch):
 
 
 def test_start_scan_posts_targets_and_uses_service(client, monkeypatch):
-    """Verify POST /api/scans/ calls scan_services.start_scan correctly."""
     from app.services import scan_services
 
     seen = {}

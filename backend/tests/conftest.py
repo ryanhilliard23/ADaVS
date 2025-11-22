@@ -39,7 +39,6 @@ from app.models.user import User
 # --- Persistent DB setup with seeded user ---
 @pytest.fixture(scope="session", autouse=True)
 def setup_db():
-    """Recreate DB with a dummy user shared across threads."""
     Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)
 
@@ -54,7 +53,6 @@ def setup_db():
 # --- Disable authentication globally ---
 @pytest.fixture(scope="session", autouse=True)
 def disable_auth():
-    """Override all get_current_user dependencies for all routes."""
     def fake_user():
         return {"id": 1, "user_id": 1, "username": "testuser"}
 
@@ -108,7 +106,6 @@ def patch_service_signatures(monkeypatch):
 
 @pytest.fixture(scope="session")
 def db_engine():
-    """Provide a shared in-memory SQLite engine for all tests."""
     engine = create_engine(
         "sqlite+pysqlite:///:memory:",
         connect_args={"check_same_thread": False},
@@ -146,7 +143,6 @@ def client():
 
 @pytest.fixture
 def db_session(db_engine):
-    """Provide a fresh database session for tests that need raw DB access."""
     SessionLocal = sessionmaker(bind=db_engine, autoflush=False, autocommit=False, future=True)
     session = SessionLocal()
     try:
@@ -158,7 +154,6 @@ def db_session(db_engine):
 
 @pytest.fixture(autouse=True)
 def clean_db(db_engine):
-    """Ensure DB tables are empty before each test (to avoid FK conflicts)."""
     from app.models.base import Base
     with db_engine.begin() as conn:
         for table in reversed(Base.metadata.sorted_tables):

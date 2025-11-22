@@ -8,9 +8,6 @@ from app.models.base import get_db
 
 
 def _load_app(monkeypatch):
-    """
-    Reload app.main with an in-memory SQLite DB to isolate each test.
-    """
     monkeypatch.setenv("DATABASE_URL", "sqlite+pysqlite:///:memory:")
     import app.main as app_main
     importlib.reload(app_main)
@@ -40,7 +37,6 @@ def test_lifespan_calls_create_all_and_dispose(monkeypatch):
 
 
 def test_root_endpoint(monkeypatch):
-    """Ensure root returns expected message."""
     app_main = _load_app(monkeypatch)
     with TestClient(app_main.app) as client:
         r = client.get("/")
@@ -49,7 +45,6 @@ def test_root_endpoint(monkeypatch):
 
 
 def test_routers_mounted_under_api_prefix(monkeypatch):
-    """Ensure /api/* routers respond correctly even if auth required."""
     from app.services import asset_services, scan_services, vulnerability_services
 
     monkeypatch.setattr(asset_services, "list_assets",
@@ -70,7 +65,6 @@ def test_routers_mounted_under_api_prefix(monkeypatch):
 
 
 def test_cors_preflight_allows_localhost3000(monkeypatch):
-    """Verify CORS preflight returns allow-origin header for frontend."""
     app_main = _load_app(monkeypatch)
     with TestClient(app_main.app) as client:
         r = client.options(
